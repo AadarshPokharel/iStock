@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_80">#FFD0BCFF</color>
+    <color name="purple_grey_80">#FFCCC2DC</color>
+    <color name="pink_80">#FFEFB8C8</color>
+    <color name="purple_40">#FF6650A4</color>
+    <color name="purple_grey_40">#FF625B71</color>
+    <color name="pink_40">#FF7D5260</color>
+    
+    <!-- Custom colors for inventory management -->
+    <color name="inventory_primary">#FF1976D2</color>
+    <color name="inventory_secondary">#FF388E3C</color>
+    <color name="warning_orange">#FFFF9800</color>
+    <color name="error_red">#FFD32F2F</color>
+</resources>
