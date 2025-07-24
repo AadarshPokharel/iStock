@@ -18,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import com.istock.inventorymanager.data.model.InventoryItem
 import com.istock.inventorymanager.ui.screen.AddEditItemScreen
 import com.istock.inventorymanager.ui.screen.CategoriesScreen
+import com.istock.inventorymanager.ui.screen.CategoryInventoryScreen
 import com.istock.inventorymanager.ui.screen.InventoryScreen
 import com.istock.inventorymanager.ui.screen.ShoppingListScreen
 import com.istock.inventorymanager.ui.viewmodel.CategoryViewModel
@@ -99,7 +100,6 @@ fun InventoryNavigation(modifier: Modifier = Modifier) {
                 startDestination = Screen.Categories.route,
                 modifier = modifier.padding(innerPadding)
             ) {
-                composable(Screen.Categories.route) { CategoriesScreen() }
                 composable(Screen.Inventory.route) {
                     InventoryScreen(
                         onAddItem = {
@@ -113,6 +113,19 @@ fun InventoryNavigation(modifier: Modifier = Modifier) {
                     )
                 }
                 composable(Screen.ShoppingList.route) { ShoppingListScreen() }
+                composable(Screen.Categories.route){ CategoriesScreen(navController = navController) }
+                composable("categoryInventory/{categoryId}") { backStackEntry ->
+                    val categoryId = backStackEntry.arguments?.getString("categoryId")?.toLongOrNull()
+                    if (categoryId != null) {
+                        CategoryInventoryScreen(
+                            categoryId = categoryId,
+                            navController = navController
+                        )
+                    } else {
+                        // Handle invalid category ID case
+                        Text("Invalid Category ID")
+                    }
+                }
             }
         }
     }

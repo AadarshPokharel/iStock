@@ -127,6 +127,15 @@ class InventoryViewModel @Inject constructor(private val inventoryRepository: In
         }
         return warrantyExpiringItems.asStateFlow()
     }
+    fun getItemsByCategory(categoryId: Long): StateFlow<List<InventoryItem>> {
+        val itemsByCategory = MutableStateFlow<List<InventoryItem>>(emptyList())
+        viewModelScope.launch {
+            _allItems.collect { items ->
+                itemsByCategory.value = items.filter { it.categoryId == categoryId }
+            }
+        }
+        return itemsByCategory.asStateFlow()
+    }
 
     suspend fun getItemById(id: Long): InventoryItem? {
         return inventoryRepository.getItemById(id)

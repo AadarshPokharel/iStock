@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.istock.inventorymanager.data.model.Category
 import com.istock.inventorymanager.ui.viewmodel.CategoryViewModel
 
@@ -39,7 +40,7 @@ private fun getCategoryIcon(categoryName: String): ImageVector {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel()) {
+fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navController: NavController) {
     val categories by viewModel.categories.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
@@ -105,12 +106,13 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel()) {
                                 category = category,
                                 onEdit = { editingCategory = category },
                                 onDelete = { viewModel.deleteCategory(category) },
-                                onClick = { /* Navigate to category items */}
+                                onClick = { navController.navigate("categoryInventory/${category.id}") }
                         )
                     }
                 }
             }
         }
+
 
         // Floating Action Button
         FloatingActionButton(
