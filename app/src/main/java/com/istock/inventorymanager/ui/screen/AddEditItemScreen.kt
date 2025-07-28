@@ -19,6 +19,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,10 +45,10 @@ import java.util.*
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditItemScreen(
-        item: InventoryItem? = null,
-        categories: List<Category>,
-        onSave: (InventoryItem) -> Unit,
-        onCancel: () -> Unit
+    item: InventoryItem? = null,
+    categories: List<Category>,
+    onSave: (InventoryItem) -> Unit,
+    onCancel: () -> Unit
 ) {
     var name by remember { mutableStateOf(item?.name ?: "") }
     var description by remember { mutableStateOf(item?.description ?: "") }
@@ -109,8 +111,8 @@ fun AddEditItemScreen(
                                 warrantyDate = warrantyDate,
                                 price = price.toDoubleOrNull() ?: 0.0,
                                 imagePath = imagePath,
-                                barcode = barcode.trim().ifEmpty { null },
-                                location = location.trim(),
+                                barcode = barcode.trim().ifEmpty { null }, // commented barcode in the code below
+                                location = location.trim(), // commented location in the code below
                                 notes = notes.trim(),
                                 createdAt = item?.createdAt ?: Date(),
                                 updatedAt = Date()
@@ -138,56 +140,56 @@ fun AddEditItemScreen(
 
             // Image Section
             Card(
-                    modifier =
-                            Modifier.fillMaxWidth().height(200.dp).clickable {
-                                if (cameraPermissionState.status.isGranted) {
-                                    showCamera = true
-                                } else {
-                                    cameraPermissionState.launchPermissionRequest()
-                                }
-                            },
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                modifier =
+                    Modifier.fillMaxWidth().height(200.dp).clickable {
+                        if (cameraPermissionState.status.isGranted) {
+                            showCamera = true
+                        } else {
+                            cameraPermissionState.launchPermissionRequest()
+                        }
+                    },
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     if (imagePath != null) {
                         AsyncImage(
-                                model = imagePath,
-                                contentDescription = "Item image",
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
+                            model = imagePath,
+                            contentDescription = "Item image",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
                         )
                         // Delete image button
                         IconButton(
-                                onClick = { imagePath = null },
-                                modifier =
-                                        Modifier.align(Alignment.TopEnd)
-                                                .padding(8.dp)
-                                                .background(
-                                                        Color.Black.copy(alpha = 0.5f),
-                                                        CircleShape
-                                                )
+                            onClick = { imagePath = null },
+                            modifier =
+                                Modifier.align(Alignment.TopEnd)
+                                    .padding(8.dp)
+                                    .background(
+                                        Color.Black.copy(alpha = 0.5f),
+                                        CircleShape
+                                    )
                         ) {
                             Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = "Delete image",
-                                    tint = Color.White
+                                Icons.Default.Delete,
+                                contentDescription = "Delete image",
+                                tint = Color.White
                             )
                         }
                     } else {
                         Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
                         ) {
                             Icon(
-                                    Icons.Default.CameraAlt,
-                                    contentDescription = "Add image",
-                                    modifier = Modifier.size(48.dp),
-                                    tint = MaterialTheme.colorScheme.primary
+                                Icons.Default.CameraAlt,
+                                contentDescription = "Add image",
+                                modifier = Modifier.size(48.dp),
+                                tint = MaterialTheme.colorScheme.primary
                             )
                             Text(
-                                    text = "Tap to add image",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                text = "Tap to add image",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -196,49 +198,49 @@ fun AddEditItemScreen(
 
             // Basic Information
             OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Item Name *") },
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingIcon = { Icon(Icons.Default.Inventory, contentDescription = null) }
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Item Name *") },
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = { Icon(Icons.Default.Inventory, contentDescription = null) }
             )
 
             OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth(),
-                    minLines = 2,
-                    leadingIcon = { Icon(Icons.Default.Description, contentDescription = null) }
+                value = description,
+                onValueChange = { description = it },
+                label = { Text("Description") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 2,
+                leadingIcon = { Icon(Icons.Default.Description, contentDescription = null) }
             )
 
             // Category Dropdown
             ExposedDropdownMenuBox(
-                    expanded = expandedCategory,
-                    onExpandedChange = { expandedCategory = !expandedCategory }
+                expanded = expandedCategory,
+                onExpandedChange = { expandedCategory = !expandedCategory }
             ) {
                 OutlinedTextField(
-                        value = selectedCategory?.name ?: "",
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Category *") },
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCategory)
-                        },
-                        modifier = Modifier.fillMaxWidth().menuAnchor(),
-                        leadingIcon = { Icon(Icons.Default.Category, contentDescription = null) }
+                    value = selectedCategory?.name ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Category *") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCategory)
+                    },
+                    modifier = Modifier.fillMaxWidth().menuAnchor(),
+                    leadingIcon = { Icon(Icons.Default.Category, contentDescription = null) }
                 )
                 ExposedDropdownMenu(
-                        expanded = expandedCategory,
-                        onDismissRequest = { expandedCategory = false }
+                    expanded = expandedCategory,
+                    onDismissRequest = { expandedCategory = false }
                 ) {
                     categories.forEach { category ->
                         DropdownMenuItem(
-                                text = { Text(category.name) },
-                                onClick = {
-                                    selectedCategory = category
-                                    expandedCategory = false
-                                }
+                            text = { Text(category.name) },
+                            onClick = {
+                                selectedCategory = category
+                                expandedCategory = false
+                            }
                         )
                     }
                 }
@@ -246,116 +248,116 @@ fun AddEditItemScreen(
 
             // Quantity and Stock
             Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedTextField(
-                        value = quantity,
-                        onValueChange = { quantity = it },
-                        label = { Text("Quantity *") },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        leadingIcon = { Icon(Icons.Default.Numbers, contentDescription = null) }
+                    value = quantity,
+                    onValueChange = { quantity = it },
+                    label = { Text("Quantity *") },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    leadingIcon = { Icon(Icons.Default.Numbers, contentDescription = null) }
                 )
 
                 OutlinedTextField(
-                        value = minStockLevel,
-                        onValueChange = { minStockLevel = it },
-                        label = { Text("Min Stock") },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        leadingIcon = { Icon(Icons.Default.Warning, contentDescription = null) }
+                    value = minStockLevel,
+                    onValueChange = { minStockLevel = it },
+                    label = { Text("Min Stock") },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    leadingIcon = { Icon(Icons.Default.Warning, contentDescription = null) }
                 )
             }
 
             // Price and Location
             Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedTextField(
-                        value = price,
-                        onValueChange = { price = it },
-                        label = { Text("Price") },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        leadingIcon = { Icon(Icons.Default.AttachMoney, contentDescription = null) }
+                    value = price,
+                    onValueChange = { price = it },
+                    label = { Text("Price") },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    leadingIcon = { Icon(Icons.Default.AttachMoney, contentDescription = null) }
                 )
 
-                OutlinedTextField(
-                        value = location,
-                        onValueChange = { location = it },
-                        label = { Text("Location") },
-                        modifier = Modifier.weight(1f),
-                        leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) }
-                )
+//                OutlinedTextField(
+//                    value = location,
+//                    onValueChange = { location = it },
+//                    label = { Text("Location") },
+//                    modifier = Modifier.weight(1f),
+//                    leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) }
+//                )
             }
 
             // Dates
             Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedTextField(
-                        value = expirationDate?.let { dateFormatter.format(it) } ?: "",
-                        onValueChange = {},
-                        label = { Text("Expiry Date") },
-                        modifier =
-                                Modifier.weight(1f).clickable {
-                                    datePickerType = "expiration"
-                                    showDatePicker = true
-                                },
-                        readOnly = true,
-                        leadingIcon = { Icon(Icons.Default.Event, contentDescription = null) },
-                        trailingIcon = {
-                            if (expirationDate != null) {
-                                IconButton(onClick = { expirationDate = null }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "Clear date")
-                                }
+                    value = expirationDate?.let { dateFormatter.format(it) } ?: "",
+                    onValueChange = {},
+                    label = { Text("Expiry Date") },
+                    modifier =
+                        Modifier.weight(1f).clickable {
+                            datePickerType = "expiration"
+                            showDatePicker = true
+                        },
+                    readOnly = true,
+                    leadingIcon = { Icon(Icons.Default.Event, contentDescription = null) },
+                    trailingIcon = {
+                        if (expirationDate != null) {
+                            IconButton(onClick = { expirationDate = null }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Clear date")
                             }
                         }
+                    }
                 )
 
                 OutlinedTextField(
-                        value = warrantyDate?.let { dateFormatter.format(it) } ?: "",
-                        onValueChange = {},
-                        label = { Text("Warranty Date") },
-                        modifier =
-                                Modifier.weight(1f).clickable {
-                                    datePickerType = "warranty"
-                                    showDatePicker = true
-                                },
-                        readOnly = true,
-                        leadingIcon = { Icon(Icons.Default.Security, contentDescription = null) },
-                        trailingIcon = {
-                            if (warrantyDate != null) {
-                                IconButton(onClick = { warrantyDate = null }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "Clear date")
-                                }
+                    value = warrantyDate?.let { dateFormatter.format(it) } ?: "",
+                    onValueChange = {},
+                    label = { Text("Warranty Date") },
+                    modifier =
+                        Modifier.weight(1f).clickable {
+                            datePickerType = "warranty"
+                            showDatePicker = true
+                        },
+                    readOnly = true,
+                    leadingIcon = { Icon(Icons.Default.Security, contentDescription = null) },
+                    trailingIcon = {
+                        if (warrantyDate != null) {
+                            IconButton(onClick = { warrantyDate = null }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Clear date")
                             }
                         }
+                    }
                 )
             }
 
             // Barcode
-            OutlinedTextField(
-                    value = barcode,
-                    onValueChange = { barcode = it },
-                    label = { Text("Barcode/SKU") },
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingIcon = { Icon(Icons.Default.QrCode, contentDescription = null) }
-            )
+//            OutlinedTextField(
+//                value = barcode,
+//                onValueChange = { barcode = it },
+//                label = { Text("Barcode/SKU") },
+//                modifier = Modifier.fillMaxWidth(),
+//                leadingIcon = { Icon(Icons.Default.QrCode, contentDescription = null) }
+//            )
 
             // Notes
             OutlinedTextField(
-                    value = notes,
-                    onValueChange = { notes = it },
-                    label = { Text("Notes") },
-                    modifier = Modifier.fillMaxWidth(),
-                    minLines = 3,
-                    leadingIcon = {
-                        Icon(Icons.Filled.Notes, contentDescription = null)
-                    }
+                value = notes,
+                onValueChange = { notes = it },
+                label = { Text("Notes") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3,
+                leadingIcon = {
+                    Icon(Icons.Filled.Notes, contentDescription = null)
+                }
             )
 
             // Add bottom padding for better scrolling experience
@@ -365,43 +367,16 @@ fun AddEditItemScreen(
         // Dialogs should be outside the scrollable content
         if (showCamera && cameraPermissionState.status.isGranted) {
             CameraDialog(
-                    imageCapture = imageCapture,
-                    onImageCaptured = { uri ->
-                        imagePath = uri.toString()
-                        showCamera = false
-                    },
-                    onDismiss = { showCamera = false }
-            )
-        }
-        if (showDatePicker) {
-            DatePickerDialog(
-                    onDateSelected = { selectedDate ->
-                        when (datePickerType) {
-                            "expiration" -> expirationDate = selectedDate
-                            "warranty" -> warrantyDate = selectedDate
-                        }
-                        showDatePicker = false
-                    },
-                    onDismiss = { showDatePicker = false }
-            )
-        }
-    }
-
-    // Camera Dialog
-    if (showCamera && cameraPermissionState.status.isGranted) {
-        CameraDialog(
                 imageCapture = imageCapture,
                 onImageCaptured = { uri ->
                     imagePath = uri.toString()
                     showCamera = false
                 },
                 onDismiss = { showCamera = false }
-        )
-    }
-
-    // Date Picker Dialog
-    if (showDatePicker) {
-        DatePickerDialog(
+            )
+        }
+        if (showDatePicker) {
+            DatePickerDialog(
                 onDateSelected = { selectedDate ->
                     when (datePickerType) {
                         "expiration" -> expirationDate = selectedDate
@@ -410,15 +385,42 @@ fun AddEditItemScreen(
                     showDatePicker = false
                 },
                 onDismiss = { showDatePicker = false }
+            )
+        }
+    }
+
+    // Camera Dialog
+    if (showCamera && cameraPermissionState.status.isGranted) {
+        CameraDialog(
+            imageCapture = imageCapture,
+            onImageCaptured = { uri ->
+                imagePath = uri.toString()
+                showCamera = false
+            },
+            onDismiss = { showCamera = false }
+        )
+    }
+
+    // Date Picker Dialog
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDateSelected = { selectedDate ->
+                when (datePickerType) {
+                    "expiration" -> expirationDate = selectedDate
+                    "warranty" -> warrantyDate = selectedDate
+                }
+                showDatePicker = false
+            },
+            onDismiss = { showDatePicker = false }
         )
     }
 }
 
 @Composable
 fun CameraDialog(
-        imageCapture: ImageCapture,
-        onImageCaptured: (Uri) -> Unit,
-        onDismiss: () -> Unit
+    imageCapture: ImageCapture,
+    onImageCaptured: (Uri) -> Unit,
+    onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -429,52 +431,52 @@ fun CameraDialog(
             Column {
                 Box(modifier = Modifier.weight(1f)) {
                     AndroidView(
-                            factory = { ctx ->
-                                val previewView = PreviewView(ctx)
-                                val executor = ContextCompat.getMainExecutor(ctx)
-                                cameraProviderFuture.addListener(
-                                        {
-                                            val cameraProvider = cameraProviderFuture.get()
-                                            val preview =
-                                                    Preview.Builder().build().also {
-                                                        it.setSurfaceProvider(
-                                                                previewView.surfaceProvider
-                                                        )
-                                                    }
+                        factory = { ctx ->
+                            val previewView = PreviewView(ctx)
+                            val executor = ContextCompat.getMainExecutor(ctx)
+                            cameraProviderFuture.addListener(
+                                {
+                                    val cameraProvider = cameraProviderFuture.get()
+                                    val preview =
+                                        Preview.Builder().build().also {
+                                            it.setSurfaceProvider(
+                                                previewView.surfaceProvider
+                                            )
+                                        }
 
-                                            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+                                    val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
-                                            try {
-                                                cameraProvider.unbindAll()
-                                                cameraProvider.bindToLifecycle(
-                                                        lifecycleOwner,
-                                                        cameraSelector,
-                                                        preview,
-                                                        imageCapture
-                                                )
-                                            } catch (exc: Exception) {
-                                                // Handle exception
-                                            }
-                                        },
-                                        executor
-                                )
-                                previewView
-                            },
-                            modifier = Modifier.fillMaxSize()
+                                    try {
+                                        cameraProvider.unbindAll()
+                                        cameraProvider.bindToLifecycle(
+                                            lifecycleOwner,
+                                            cameraSelector,
+                                            preview,
+                                            imageCapture
+                                        )
+                                    } catch (exc: Exception) {
+                                        // Handle exception
+                                    }
+                                },
+                                executor
+                            )
+                            previewView
+                        },
+                        modifier = Modifier.fillMaxSize()
                     )
 
                     // Capture button
                     FloatingActionButton(
-                            onClick = {
-                                val outputFile = CameraUtil.createImageFile(context)
-                                CameraUtil.captureImage(
-                                        imageCapture = imageCapture,
-                                        outputFile = outputFile,
-                                        onSuccess = onImageCaptured,
-                                        onError = { /* Handle error */}
-                                )
-                            },
-                            modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
+                        onClick = {
+                            val outputFile = CameraUtil.createImageFile(context)
+                            CameraUtil.captureImage(
+                                imageCapture = imageCapture,
+                                outputFile = outputFile,
+                                onSuccess = onImageCaptured,
+                                onError = { /* Handle error */}
+                            )
+                        },
+                        modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
                     ) { Icon(Icons.Default.CameraAlt, contentDescription = "Capture") }
                 }
             }
@@ -488,16 +490,16 @@ fun DatePickerDialog(onDateSelected: (Date) -> Unit, onDismiss: () -> Unit) {
     val datePickerState = rememberDatePickerState()
 
     DatePickerDialog(
-            onDismissRequest = onDismiss,
-            confirmButton = {
-                TextButton(
-                        onClick = {
-                            datePickerState.selectedDateMillis?.let { millis ->
-                                onDateSelected(Date(millis))
-                            }
-                        }
-                ) { Text("OK") }
-            },
-            dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        onDateSelected(Date(millis))
+                    }
+                }
+            ) { Text("OK") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     ) { DatePicker(state = datePickerState) }
 }

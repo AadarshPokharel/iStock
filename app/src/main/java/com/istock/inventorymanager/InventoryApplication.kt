@@ -13,7 +13,7 @@ import dagger.hilt.android.HiltAndroidApp
 import java.util.concurrent.TimeUnit
 
 @HiltAndroidApp
-class InventoryApplication : Application() {
+class   InventoryApplication : Application() {
     
     override fun onCreate() {
         super.onCreate()
