@@ -11,6 +11,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.istock.inventorymanager.data.model.InventoryItem
 import com.istock.inventorymanager.ui.viewmodel.InventoryViewModel
+import com.istock.inventorymanager.ui.viewmodel.CategoryViewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 
@@ -19,9 +20,17 @@ import androidx.compose.material.icons.filled.ArrowBack
 fun CategoryInventoryScreen(
     categoryId: Long,
     navController: NavController,
+    categoryViewModel: CategoryViewModel = hiltViewModel(),
     inventoryViewModel: InventoryViewModel = hiltViewModel()
 ) {
     val items by inventoryViewModel.getItemsByCategory(categoryId).collectAsState(initial = emptyList())
+    var categoryName by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(categoryId) {
+        // Fetch the category name based on the categoryId
+        val category = categoryViewModel.getCategoryById(categoryId)
+        categoryName = category?.name
+    }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         TopAppBar(
@@ -34,7 +43,7 @@ fun CategoryInventoryScreen(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Items in Category",
+            text  = "Items in \"${categoryName ?: "Category"}\"",
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )

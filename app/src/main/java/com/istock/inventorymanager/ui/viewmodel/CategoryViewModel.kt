@@ -66,4 +66,7 @@ class CategoryViewModel @Inject constructor(private val categoryRepository: Cate
             }
         }
     }
+    suspend fun getCategoryById(id: Long): Category? {
+        return categoryRepository.getCategoryById(id)
+    }
 }
