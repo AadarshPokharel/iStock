@@ -101,6 +101,9 @@ dependencies {
     implementation(libs.androidx.hilt.work)
     kapt("androidx.hilt:hilt-compiler:1.1.0")
     
+    // Firebase Cloud Messaging for push notifications
+    implementation("com.google.firebase:firebase-messaging:24.0.0")
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
