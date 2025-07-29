@@ -18,6 +18,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.istock.inventorymanager.data.model.ShoppingListItem
 import com.istock.inventorymanager.ui.viewmodel.ShoppingListViewModel
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
+import androidx.compose.foundation.layout.Arrangement
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,35 +34,33 @@ fun ShoppingListScreen(viewModel: ShoppingListViewModel = hiltViewModel()) {
     var showCompleted by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Text(
+                text = "Shopping List",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+        )
+
         Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                    text = "Shopping List",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
+            ExportButton(shoppingItems)
+            Spacer(modifier = Modifier.width(8.dp))
+            FilterChip(
+                onClick = { showCompleted = !showCompleted },
+                label = { Text(if (showCompleted) "Show Pending" else "Show All") },
+                selected = showCompleted
             )
+            Spacer(modifier = Modifier.width(8.dp))
 
-            Row {
-                FilterChip(
-                        onClick = { showCompleted = !showCompleted },
-                        label = { Text(if (showCompleted) "Show Pending" else "Show All") },
-                        selected = showCompleted
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                FloatingActionButton(
-                        onClick = { showAddDialog = true },
-                        modifier = Modifier.size(56.dp)
-                ) { Icon(Icons.Default.Add, contentDescription = "Add Item") }
-            }
+            FloatingActionButton(
+                onClick = { showAddDialog = true },
+                modifier = Modifier.size(56.dp)
+            ) { Icon(Icons.Default.Add, contentDescription = "Add Item") }
         }
-
         Spacer(modifier = Modifier.height(16.dp))
-
         // Summary
         Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -308,4 +310,22 @@ fun AddShoppingItemDialog(onDismiss: () -> Unit, onConfirm: (String, Int, Int, S
             },
             dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
+}
+
+@Composable
+fun ExportButton(shoppingItems: List<ShoppingListItem>) {
+    val context = LocalContext.current
+    IconButton(onClick = {
+        val exportText = shoppingItems.joinToString("\n") {
+            "- ${it.name} (Qty: ${it.quantity})${if (it.isCompleted) " [Done]" else ""}"
+        }
+        val sendIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, exportText)
+            type = "text/plain"
+        }
+        context.startActivity(Intent.createChooser(sendIntent, "Export Shopping List"))
+    }) {
+        Icon(Icons.Default.Share, contentDescription = "Export")
+    }
 }
