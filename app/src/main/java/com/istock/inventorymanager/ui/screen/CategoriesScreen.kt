@@ -46,6 +46,11 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
 
     var showAddDialog by remember { mutableStateOf(false) }
     var editingCategory by remember { mutableStateOf<Category?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
+
+    val filteredCategories = categories.filter {
+        it.name.contains(searchQuery, ignoreCase = true)
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -73,8 +78,8 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
                     Spacer(modifier = Modifier.height(8.dp))
 
                     OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
                             label = { Text("Search categories...") },
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
@@ -101,7 +106,7 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.weight(1f)
                 ) {
-                    items(categories) { category ->
+                    items(filteredCategories) { category ->
                         CategoryCard(
                                 category = category,
                                 onEdit = { editingCategory = category },
