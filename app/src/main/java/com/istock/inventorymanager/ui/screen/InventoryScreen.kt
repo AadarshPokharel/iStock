@@ -19,366 +19,238 @@ import com.istock.inventorymanager.ui.viewmodel.CategoryViewModel
 import com.istock.inventorymanager.ui.viewmodel.InventoryViewModel
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DisplayMode
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.foundation.clickable // For Date TextFields
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import java.util.Calendar // For Date manipulation
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun InventoryScreen(
-        inventoryViewModel: InventoryViewModel = hiltViewModel(),
-        categoryViewModel: CategoryViewModel = hiltViewModel()
-) {
-    val inventoryItems by inventoryViewModel.inventoryItems.collectAsState()
-    val lowStockItems by inventoryViewModel.lowStockItems.collectAsState()
-    val categories by categoryViewModel.categories.collectAsState()
-    val isLoading by inventoryViewModel.isLoading.collectAsState()
-    val selectedCategoryId by inventoryViewModel.selectedCategoryId.collectAsState()
 
-    var showAddDialog by remember { mutableStateOf(false) }
-    var editingItem by remember { mutableStateOf<InventoryItem?>(null) }
-    var showLowStockFilter by remember { mutableStateOf(false) }
-
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                    text = "Inventory",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-            )
-
-            Row {
-                if (lowStockItems.isNotEmpty()) {
-                    FilterChip(
-                            onClick = {
-                                showLowStockFilter = !showLowStockFilter
-                                if (showLowStockFilter) {
-                                    // Show only low stock items - this would require additional
-                                    // logic
-                                } else {
-                                    inventoryViewModel.selectCategory(selectedCategoryId)
-                                }
-                            },
-                            label = {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                            Icons.Default.Warning,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Low Stock (${lowStockItems.size})")
-                                }
-                            },
-                            selected = showLowStockFilter,
-                            colors =
-                                    FilterChipDefaults.filterChipColors(
-                                            selectedContainerColor =
-                                                    MaterialTheme.colorScheme.errorContainer
-                                    )
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-
-                FloatingActionButton(
-                        onClick = { showAddDialog = true },
-                        modifier = Modifier.size(56.dp)
-                ) { Icon(Icons.Default.Add, contentDescription = "Add Item") }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Category filter
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            item {
-                FilterChip(
-                        onClick = { inventoryViewModel.selectCategory(null) },
-                        label = { Text("All") },
-                        selected = selectedCategoryId == null
-                )
-            }
-            items(categories) { category ->
-                FilterChip(
-                        onClick = { inventoryViewModel.selectCategory(category.id) },
-                        label = { Text(category.name) },
-                        selected = selectedCategoryId == category.id
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (isLoading) {
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        }
-
-        val itemsToShow = if (showLowStockFilter) lowStockItems else inventoryItems
-
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(itemsToShow) { item ->
-                InventoryItemCard(
-                        item = item,
-                        onEdit = { editingItem = item },
-                        onDelete = { inventoryViewModel.deleteItem(item) },
-                )
-            }
-        }
-    }
-
-    if (showAddDialog) {
-        AddInventoryItemDialog(
-                onDismiss = { showAddDialog = false },
-                onConfirm = { name, description, categoryId, quantity, minStock, expDate, warDate, _
-                    -> // Renamed unused parameter 'price' to '_'
-                    inventoryViewModel.addItem(
-                            InventoryItem(
-                                    name = name,
-                                    description = description,
-                                    categoryId = categoryId,
-                                    quantity = quantity,
-                                    minStockLevel = minStock,
-                                    expirationDate = expDate,
-                                    warrantyDate = warDate,
-                                    price = 0.0,
-                                    imagePath = "",
-                                    barcode = "",
-                                    location = "",
-                                    notes = ""
-                            )
-                    )
-                    showAddDialog = false
-                }
-        )
-    }
-
-    editingItem?.let { item ->
-        EditInventoryItemDialog(
-                item = item,
-                onDismiss = { editingItem = null },
-                onConfirm = { updatedItem ->
-                    inventoryViewModel.updateItem(updatedItem)
-                    editingItem = null
-                }
-        )
-    }
-}
-
-@Composable
-fun InventoryItemCard(
-        item: InventoryItem,
-        onEdit: () -> Unit,
-        onDelete: () -> Unit,
-) {
-    val isLowStock = item.quantity <= item.minStockLevel
-    val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-
-    Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            colors =
-                    CardDefaults.cardColors(
-                            containerColor =
-                                    if (isLowStock) MaterialTheme.colorScheme.errorContainer
-                                    else MaterialTheme.colorScheme.surface
-                    )
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                            text = item.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                    )
-
-                    if (item.description.isNotEmpty()) {
-                        Text(
-                                text = item.description,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    Row(
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            modifier = Modifier.padding(top = 8.dp)
-                    ) {
-                        Text(
-                                text = "Qty: ${item.quantity}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Medium,
-                                color =
-                                        if (isLowStock) MaterialTheme.colorScheme.error
-                                        else Color.Unspecified
-                        )
-
-                        if (item.price > 0) {
-                            Text(
-                                    text = "$${String.format("%.2f", item.price)}",
-                                    style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
-
-                    item.expirationDate?.let { date ->
-                        Text(
-                                text = "Expires: ${dateFormat.format(date)}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    item.warrantyDate?.let { date ->
-                        Text(
-                                text = "Warranty: ${dateFormat.format(date)}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                Row {
-                    IconButton(onClick = onEdit) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit")
-                    }
-                    IconButton(onClick = onDelete) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete")
-                    }
-                }
-            }
-
-            if (isLowStock) {
-                Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(top = 8.dp)
-                ) {
-                    Icon(
-                            Icons.Default.Warning,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                            text = "Low Stock Alert",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error,
-                            fontWeight = FontWeight.Medium
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun AddInventoryItemDialog(
-        onDismiss: () -> Unit,
-        onConfirm: (String, String, Long, Int, Int, Date?, Date?, Double) -> Unit
-) {
-    // Simplified implementation - in a real app, this would have more fields
-    var name by remember { mutableStateOf("") }
-    var quantity by remember { mutableStateOf("") }
-    var selectedCategoryId by remember { mutableStateOf<Long?>(null) }
-
-    AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text("Add Inventory Item") },
-            text = {
-                Column {
-                    OutlinedTextField(
-                            value = name,
-                            onValueChange = { name = it },
-                            label = { Text("Item Name") },
-                            modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                            value = quantity,
-                            onValueChange = { quantity = it },
-                            label = { Text("Quantity") },
-                            modifier = Modifier.fillMaxWidth()
-                    )
-                    // Add category dropdown here
-                }
-            },
-            confirmButton = {
-                TextButton(
-                        onClick = {
-                            if (name.isNotBlank() &&
-                                            quantity.isNotBlank() &&
-                                            selectedCategoryId != null
-                            ) {
-                                onConfirm(
-                                        name.trim(),
-                                        "",
-                                        selectedCategoryId!!,
-                                        quantity.toIntOrNull() ?: 0,
-                                        0,
-                                        null,
-                                        null,
-                                        0.0
-                                )
-                            }
-                        }
-                ) { Text("Add") }
-            },
-            dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
-    )
-}
-
+@OptIn(ExperimentalMaterial3Api::class) // Added OptIn for DatePickerState
 @Composable
 fun EditInventoryItemDialog(
-        item: InventoryItem,
-        onDismiss: () -> Unit,
-        onConfirm: (InventoryItem) -> Unit
+    item: InventoryItem,
+    onDismiss: () -> Unit,
+    onConfirm: (InventoryItem) -> Unit
 ) {
-    // Simplified implementation
     var name by remember { mutableStateOf(item.name) }
+    var description by remember { mutableStateOf(item.description) }
     var quantity by remember { mutableStateOf(item.quantity.toString()) }
+    var minStock by remember { mutableStateOf(item.minStockLevel.toString()) }
+    var price by remember { mutableStateOf(String.format(Locale.US, "%.2f", item.price)) } // Assuming price is Double
+
+    // --- Date States ---
+    val dateFormat = remember { SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()) }
+
+    var expirationDate by remember { mutableStateOf(item.expirationDate) }
+    var showExpirationDatePicker by remember { mutableStateOf(false) }
+    val expirationDatePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = item.expirationDate?.time,
+        initialDisplayMode = DisplayMode.Picker // Or DisplayMode.Input
+    )
+
+    var warrantyDate by remember { mutableStateOf(item.warrantyDate) }
+    var showWarrantyDatePicker by remember { mutableStateOf(false) }
+    val warrantyDatePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = item.warrantyDate?.time,
+        initialDisplayMode = DisplayMode.Picker
+    )
+
 
     AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text("Edit Inventory Item") },
-            text = {
-                Column {
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Inventory Item") },
+        text = {
+            Box(modifier = Modifier.heightIn(max = 500.dp)){
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp)
+            )
+                { // Use LazyColumn if the content might overflow
+                item {
                     OutlinedTextField(
-                            value = name,
-                            onValueChange = { name = it },
-                            label = { Text("Item Name") },
-                            modifier = Modifier.fillMaxWidth()
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text("Item Name") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                            value = quantity,
-                            onValueChange = { quantity = it },
-                            label = { Text("Quantity") },
-                            modifier = Modifier.fillMaxWidth()
-                    )
                 }
-            },
-            confirmButton = {
-                TextButton(
-                        onClick = {
-                            if (name.isNotBlank() && quantity.isNotBlank()) {
-                                onConfirm(
-                                        item.copy(
-                                                name = name.trim(),
-                                                quantity = quantity.toIntOrNull() ?: item.quantity
-                                        )
-                                )
-                            }
+                item {
+                    OutlinedTextField(
+                        value = description,
+                        onValueChange = { description = it },
+                        label = { Text("Description") },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 3
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                item {
+                    OutlinedTextField(
+                        value = quantity,
+                        onValueChange = { quantity = it },
+                        label = { Text("Quantity") },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                item {
+                    OutlinedTextField(
+                        value = minStock,
+                        onValueChange = { minStock = it },
+                        label = { Text("Min Stock Level") },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                item {
+                    OutlinedTextField(
+                        value = price,
+                        onValueChange = { price = it },
+                        label = { Text("Price") },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                // Expiration Date
+                item {
+                    OutlinedTextField(
+                        value = expirationDate?.let { dateFormat.format(it) } ?: "Select Date",
+                        onValueChange = { /* Read Only */ },
+                        label = { Text("Expiration Date") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showExpirationDatePicker = true },
+                        readOnly = true,
+                        trailingIcon = {
+                            Icon(
+                                Icons.Filled.DateRange,
+                                contentDescription = "Select Expiration Date"
+                            )
                         }
-                ) { Text("Save") }
-            },
-            dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                // Warranty Date
+                item {
+                    OutlinedTextField(
+                        value = warrantyDate?.let { dateFormat.format(it) } ?: "Select Date",
+                        onValueChange = { /* Read Only */ },
+                        label = { Text("Warranty Date") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showWarrantyDatePicker = true },
+                        readOnly = true,
+                        trailingIcon = {
+                            Icon(
+                                Icons.Filled.DateRange,
+                                contentDescription = "Select Warranty Date"
+                            )
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                // for the save button
+                item {
+                    Column {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                val updatedItem = item.copy(
+                                    name = name.trim(),
+                                    description = description.trim(),
+                                    quantity = quantity.toIntOrNull() ?: item.quantity,
+                                    minStockLevel = minStock.toIntOrNull() ?: item.minStockLevel,
+                                    price = price.toDoubleOrNull() ?: item.price,
+                                    expirationDate = expirationDate,
+                                    warrantyDate = warrantyDate
+                                )
+                                onConfirm(updatedItem)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("SAVE (within content)")
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val updatedItem = item.copy(
+                        name = name.trim(),
+                        description = description.trim(),
+                        quantity = quantity.toIntOrNull() ?: item.quantity,
+                        minStockLevel = minStock.toIntOrNull() ?: item.minStockLevel,
+                        price = price.toDoubleOrNull() ?: item.price,
+                        expirationDate = expirationDate,
+                        warrantyDate = warrantyDate
+                    )
+                    onConfirm(updatedItem) // Pass the fully updated item
+                }
+            ) { Text("Save") } // Button text is "Save"
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
+
+    // --- Date Picker Dialogs ---
+    if (showExpirationDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showExpirationDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    expirationDatePickerState.selectedDateMillis?.let { millis ->
+                        val cal = Calendar.getInstance().apply { timeInMillis = millis }
+                        expirationDate = cal.time // Store as Date object
+                    }
+                    showExpirationDatePicker = false
+                }) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExpirationDatePicker = false }) { Text("Cancel") }
+            }
+        ) {
+            DatePicker(state = expirationDatePickerState)
+        }
+    }
+
+    if (showWarrantyDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showWarrantyDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    warrantyDatePickerState.selectedDateMillis?.let { millis ->
+                        val cal = Calendar.getInstance().apply { timeInMillis = millis }
+                        warrantyDate = cal.time
+                    }
+                    showWarrantyDatePicker = false
+                }) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showWarrantyDatePicker = false }) { Text("Cancel") }
+            }
+        ) {
+            DatePicker(state = warrantyDatePickerState)
+        }
+    }
 }

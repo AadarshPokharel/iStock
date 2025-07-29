@@ -19,7 +19,7 @@ import androidx.core.view.WindowCompat
 // Defining the custom colors here
 val CustomAppPrimary = Color(0xFF9E3B2F) // This is the icons color.
 val CustomOnPrimaryText = Color(0xFFFFFFFF) // This is the text color.
-val CustomBackground = Color(0xFFF9E3B2) // This is the background color.
+val CustomBackground = Color(0xFFFFFFFF) // This is the background color.
 
 
 
