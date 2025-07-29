@@ -14,6 +14,7 @@ import com.istock.inventorymanager.ui.viewmodel.InventoryViewModel
 import com.istock.inventorymanager.ui.viewmodel.CategoryViewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,20 +34,28 @@ fun CategoryInventoryScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        TopAppBar(
-            title = { Text("Category Items") },
-            navigationIcon = {
-                IconButton(onClick = { navController.navigateUp() }) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            tonalElevation = 4.dp,
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+        ) {
+            TopAppBar(
+                title = { Text("Back to Room Categories") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
                 }
-            }
-        )
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text  = "Items in \"${categoryName ?: "Category"}\"",
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )
+
 
         if (items.isEmpty()) {
             Text(

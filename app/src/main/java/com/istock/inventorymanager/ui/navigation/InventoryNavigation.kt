@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,9 +21,11 @@ import com.istock.inventorymanager.ui.screen.AddEditItemScreen
 import com.istock.inventorymanager.ui.screen.CategoriesScreen
 import com.istock.inventorymanager.ui.screen.CategoryInventoryScreen
 import com.istock.inventorymanager.ui.screen.InventoryScreen
+import com.istock.inventorymanager.ui.screen.NotificationScreen
 import com.istock.inventorymanager.ui.screen.ShoppingListScreen
 import com.istock.inventorymanager.ui.viewmodel.CategoryViewModel
 import com.istock.inventorymanager.ui.viewmodel.InventoryViewModel
+import com.istock.inventorymanager.ui.viewmodel.NotificationViewModel
 
 sealed class Screen(
         val route: String,
@@ -33,13 +36,14 @@ sealed class Screen(
     object Inventory : Screen("inventory", "Inventory", Icons.Default.Inventory2)
     object ShoppingList : Screen("shopping_list", "Shopping List", Icons.Default.ShoppingCart)
     object AddEditItem : Screen("add_edit_item", "Add/Edit Item", Icons.Default.Inventory2)
+    object Notifications : Screen("notifications", "Notifications", Icons.Default.Notifications)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InventoryNavigation(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-    val items = listOf(Screen.Categories, Screen.Inventory, Screen.ShoppingList)
+    val items = listOf(Screen.Categories, Screen.Inventory, Screen.ShoppingList, Screen.Notifications)
 
     var currentEditingItem by remember { mutableStateOf<InventoryItem?>(null) }
     var showAddEditScreen by remember { mutableStateOf(false) }
@@ -136,6 +140,17 @@ fun InventoryNavigation(modifier: Modifier = Modifier) {
                         // Handle invalid category ID case
                         Text("Invalid Category ID")
                     }
+                }
+                composable(Screen.Notifications.route) {
+                    val notificationViewModel: NotificationViewModel = hiltViewModel()
+                    val notifications by notificationViewModel.notifications.collectAsState()
+                    NotificationScreen(
+                        notifications = notifications,
+                        onNotificationClick = { notification ->
+                            notificationViewModel.markAsRead(notification.id)
+                        },
+                        onClearAll = { notificationViewModel.clearAll() }
+                    )
                 }
             }
         }

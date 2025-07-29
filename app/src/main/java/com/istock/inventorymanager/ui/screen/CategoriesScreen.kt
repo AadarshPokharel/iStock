@@ -1,5 +1,5 @@
 package com.istock.inventorymanager.ui.screen
-import androidx.compose.ui.graphics.Color
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -46,22 +46,25 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
 
     var showAddDialog by remember { mutableStateOf(false) }
     var editingCategory by remember { mutableStateOf<Category?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
+
+    val filteredCategories = categories.filter {
+        it.name.contains(searchQuery, ignoreCase = true)
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
                 modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.background)
-                            .padding(16.dp)
+                        Modifier.fillMaxSize()
+                                .background(MaterialTheme.colorScheme.background)
+                                .padding(16.dp)
         ) {
             // Header with search bar
             Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors =
                             CardDefaults.cardColors(
-//
-                                            containerColor = Color(0xFF9E3B2F) //this is the box for room categories
+                                    containerColor = MaterialTheme.colorScheme.surface
                             ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
@@ -70,28 +73,19 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
                             text = "Room Categories",
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFF9E3B2)
+                            color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
                     OutlinedTextField(
-                        value = "",
-                        onValueChange = {}, // this to update the state
-                        label = { Text("Search categories...") },
-                        modifier = Modifier.fillMaxWidth(),
-                        trailingIcon = {
-                            Icon(Icons.Default.Search, contentDescription = "Search")
-                        },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            // color for search categories text
-                            unfocusedLabelColor = Color.White,
-                            // Color of the label when the field is focused
-                            focusedLabelColor = Color(0xFFFFFFFF),
-
-                            unfocusedTrailingIconColor = Color.White, //this is for the search icon
-                            focusedTrailingIconColor = Color.White,
-                        )
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            label = { Text("Search categories...") },
+                            modifier = Modifier.fillMaxWidth(),
+                            trailingIcon = {
+                                Icon(Icons.Default.Search, contentDescription = "Search")
+                            },
+                            shape = RoundedCornerShape(12.dp)
                     )
                 }
             }
@@ -100,9 +94,7 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
 
             if (isLoading) {
                 Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
+                        modifier = Modifier.fillMaxWidth().weight(1f),
                         contentAlignment = Alignment.Center
                 ) { CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) }
             } else {
@@ -114,13 +106,12 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.weight(1f)
                 ) {
-                    items(categories) { category ->
+                    items(filteredCategories) { category ->
                         CategoryCard(
                                 category = category,
                                 onEdit = { editingCategory = category },
                                 onDelete = { viewModel.deleteCategory(category) },
-                                onClick = { navController.navigate("categoryInventory/${category.id}") },
-
+                                onClick = { navController.navigate("categoryInventory/${category.id}") }
                         )
                     }
                 }
@@ -128,12 +119,10 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
         }
 
 
-        // Floating Action Button. the plus button on room categories screen
+        // Floating Action Button
         FloatingActionButton(
                 onClick = { showAddDialog = true },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp),
+                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
                 containerColor = MaterialTheme.colorScheme.primary
         ) {
             Icon(
@@ -173,26 +162,21 @@ fun CategoryCard(
         category: Category,
         onEdit: () -> Unit,
         onDelete: () -> Unit,
-        onClick: () -> Unit,
+        onClick: () -> Unit
 ) {
     val icon = getCategoryIcon(category.name)
 
     Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1f)
-                .clickable { onClick() },
+            modifier = Modifier.fillMaxWidth().aspectRatio(1f).clickable { onClick() },
             colors =
                     CardDefaults.cardColors(
-                            containerColor = Color(0xFFF9E3B2) //box for room categories like bathroom, bedroom bg in room categories screen
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
                     ),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
             ) {
@@ -228,9 +212,7 @@ fun CategoryCard(
             }
 
             // Action buttons
-            Row(modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(4.dp)) {
+            Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
                 IconButton(onClick = onEdit, modifier = Modifier.size(24.dp)) {
                     Icon(
                             Icons.Default.Edit,
