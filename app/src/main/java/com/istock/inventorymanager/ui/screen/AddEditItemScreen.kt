@@ -95,40 +95,44 @@ fun AddEditItemScreen(
                 }
             }
         },
-        bottomBar = {
-            Surface(modifier = Modifier.fillMaxWidth(), shadowElevation = 8.dp) {
-                Button(
-                    onClick = {
-                        if (name.isNotBlank() && selectedCategory != null && quantity.isNotBlank()) {
-                            val newItem = InventoryItem(
-                                id = item?.id ?: 0,
-                                name = name.trim(),
-                                description = description.trim(),
-                                categoryId = selectedCategory!!.id,
-                                quantity = quantity.toIntOrNull() ?: 0,
-                                minStockLevel = minStockLevel.toIntOrNull() ?: 0,
-                                expirationDate = expirationDate,
-                                warrantyDate = warrantyDate,
-                                price = price.toDoubleOrNull() ?: 0.0,
-                                imagePath = imagePath,
-                                barcode = barcode.trim().ifEmpty { null }, // commented barcode in the code below
-                                location = location.trim(), // commented location in the code below
-                                notes = notes.trim(),
-                                createdAt = item?.createdAt ?: Date(),
-                                updatedAt = Date()
-                            )
-                            onSave(newItem)
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    enabled = name.isNotBlank() && selectedCategory != null && quantity.isNotBlank()
-                ) {
-                    Icon(Icons.Default.Save, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(if (item == null) "Add Item" else "Update Item")
-                }
-            }
-        }
+//        bottomBar = {
+//            Surface(modifier = Modifier
+//                .fillMaxWidth()
+//                .navigationBarsPadding(),
+//            shadowElevation = 8.dp
+//            ) {
+//                Button(
+//                    onClick = {
+//                        if (name.isNotBlank() && selectedCategory != null && quantity.isNotBlank()) {
+//                            val newItem = InventoryItem(
+//                                id = item?.id ?: 0,
+//                                name = name.trim(),
+//                                description = description.trim(),
+//                                categoryId = selectedCategory!!.id,
+//                                quantity = quantity.toIntOrNull() ?: 0,
+//                                minStockLevel = minStockLevel.toIntOrNull() ?: 0,
+//                                expirationDate = expirationDate,
+//                                warrantyDate = warrantyDate,
+//                                price = price.toDoubleOrNull() ?: 0.0,
+//                                imagePath = imagePath,
+//                                barcode = barcode.trim().ifEmpty { null }, // commented barcode in the code below
+//                                location = location.trim(), // commented location in the code below
+//                                notes = notes.trim(),
+//                                createdAt = item?.createdAt ?: Date(),
+//                                updatedAt = Date()
+//                            )
+//                            onSave(newItem)
+//                        }
+//                    },
+//                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+//                    enabled = name.isNotBlank() && selectedCategory != null && quantity.isNotBlank()
+//                ) {
+//                    Icon(Icons.Default.Save, contentDescription = null)
+//                    Spacer(modifier = Modifier.width(120.dp))
+//                    Text(if (item == null) "Add Item" else "Update Item")
+//                }
+//            }
+//        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -359,11 +363,45 @@ fun AddEditItemScreen(
                     Icon(Icons.Filled.Notes, contentDescription = null)
                 }
             )
+            // Save Button directly under Notes
+            Button(
+                onClick = {
+                    if (name.isNotBlank() && selectedCategory != null && quantity.isNotBlank()) {
+                        val newItem = InventoryItem(
+                            id = item?.id ?: 0,
+                            name = name.trim(),
+                            description = description.trim(),
+                            categoryId = selectedCategory!!.id,
+                            quantity = quantity.toIntOrNull() ?: 0,
+                            minStockLevel = minStockLevel.toIntOrNull() ?: 0,
+                            expirationDate = expirationDate,
+                            warrantyDate = warrantyDate,
+                            price = price.toDoubleOrNull() ?: 0.0,
+                            imagePath = imagePath,
+                            barcode = barcode.trim().ifEmpty { null },
+                            location = location.trim(),
+                            notes = notes.trim(),
+                            createdAt = item?.createdAt ?: Date(),
+                            updatedAt = Date()
+                        )
+                        onSave(newItem)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                enabled = name.isNotBlank() && selectedCategory != null && quantity.isNotBlank()
+            ) {
+                Icon(Icons.Default.Save, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(if (item == null) "Add Item" else "Update Item")
+            }
+
 
             // Add bottom padding for better scrolling experience
             Spacer(modifier = Modifier.height(80.dp)) // Extra space for the bottom button
         }
-
+        // Ensure the bottom bar is always visible
         // Dialogs should be outside the scrollable content
         if (showCamera && cameraPermissionState.status.isGranted) {
             CameraDialog(

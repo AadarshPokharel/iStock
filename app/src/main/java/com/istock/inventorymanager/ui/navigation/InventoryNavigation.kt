@@ -1,5 +1,5 @@
 package com.istock.inventorymanager.ui.navigation
-
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
@@ -50,7 +50,9 @@ fun InventoryNavigation(modifier: Modifier = Modifier) {
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar (containerColor = Color(0xFF9E3B2F)) //color for bottom bar
+            {
+
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
 
@@ -70,7 +72,16 @@ fun InventoryNavigation(modifier: Modifier = Modifier) {
                                 launchSingleTop = true
                                 restoreState = true
                             }
-                        }
+                        },
+
+                        // This gives color to the icons and text inside the bottom bar
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = Color(0xFFF9E3B2), // Color for the icon when item is selected
+                            selectedTextColor = Color(0xFFF9E3B2), // Color for the text when item is selected
+                            indicatorColor = Color.White.copy(alpha = 0.2f),
+                            unselectedIconColor = Color(0xFFF9E3B2), // Color for the icon when item is not selected
+                            unselectedTextColor = Color.White  // Color for the text when item is not selected
+                        )
                     )
                 }
             }
@@ -80,7 +91,7 @@ fun InventoryNavigation(modifier: Modifier = Modifier) {
             val categoryViewModel: CategoryViewModel = hiltViewModel()
             val inventoryViewModel: InventoryViewModel = hiltViewModel()
             val categories by categoryViewModel.categories.collectAsState()
-            
+
             AddEditItemScreen(
                 item = currentEditingItem,
                 categories = categories,
