@@ -31,6 +31,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
 import androidx.core.content.ContextCompat
 import coil.compose.AsyncImage
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -39,8 +43,11 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.istock.inventorymanager.data.model.Category
 import com.istock.inventorymanager.data.model.InventoryItem
 import com.istock.inventorymanager.ui.util.CameraUtil
+//import expirationDateError
+//import expirationDateText
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.text.format
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -77,6 +84,13 @@ fun AddEditItemScreen(
 
     val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
 
+    //Manual state for date fields
+    var expirationDateText by remember { mutableStateOf(expirationDate?.let { dateFormatter.format(it) } ?: "") }
+    var expirationDateError by remember { mutableStateOf<String?>(null) }
+    var warrantyDateText by remember { mutableStateOf(warrantyDate?.let { dateFormatter.format(it) } ?: "") }
+    var warrantyDateError by remember { mutableStateOf<String?>(null) }
+
+
     Scaffold(
         topBar = {
             Surface(modifier = Modifier.fillMaxWidth(), shadowElevation = 4.dp) {
@@ -95,44 +109,7 @@ fun AddEditItemScreen(
                 }
             }
         },
-//        bottomBar = {
-//            Surface(modifier = Modifier
-//                .fillMaxWidth()
-//                .navigationBarsPadding(),
-//            shadowElevation = 8.dp
-//            ) {
-//                Button(
-//                    onClick = {
-//                        if (name.isNotBlank() && selectedCategory != null && quantity.isNotBlank()) {
-//                            val newItem = InventoryItem(
-//                                id = item?.id ?: 0,
-//                                name = name.trim(),
-//                                description = description.trim(),
-//                                categoryId = selectedCategory!!.id,
-//                                quantity = quantity.toIntOrNull() ?: 0,
-//                                minStockLevel = minStockLevel.toIntOrNull() ?: 0,
-//                                expirationDate = expirationDate,
-//                                warrantyDate = warrantyDate,
-//                                price = price.toDoubleOrNull() ?: 0.0,
-//                                imagePath = imagePath,
-//                                barcode = barcode.trim().ifEmpty { null }, // commented barcode in the code below
-//                                location = location.trim(), // commented location in the code below
-//                                notes = notes.trim(),
-//                                createdAt = item?.createdAt ?: Date(),
-//                                updatedAt = Date()
-//                            )
-//                            onSave(newItem)
-//                        }
-//                    },
-//                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-//                    enabled = name.isNotBlank() && selectedCategory != null && quantity.isNotBlank()
-//                ) {
-//                    Icon(Icons.Default.Save, contentDescription = null)
-//                    Spacer(modifier = Modifier.width(120.dp))
-//                    Text(if (item == null) "Add Item" else "Update Item")
-//                }
-//            }
-//        }
+
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -302,45 +279,114 @@ fun AddEditItemScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                OutlinedTextField(
-                    value = expirationDate?.let { dateFormatter.format(it) } ?: "",
-                    onValueChange = {},
-                    label = { Text("Expiry Date") },
-                    modifier =
-                        Modifier.weight(1f).clickable {
-                            datePickerType = "expiration"
-                            showDatePicker = true
+                Box(modifier = Modifier.weight(1f)){
+//                    OutlinedTextField(
+//                        value = expirationDate?.let { dateFormatter.format(it) } ?: "",
+//                        onValueChange = {},
+//                        label = { Text("Expiry Date") },
+//                        readOnly = true,
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .focusProperties{canFocus = false }
+//                            .semantics { role = Role.Button }
+//                            .clickable {
+//                                datePickerType = "expiration"
+//                                showDatePicker = true
+//                            },
+//                        leadingIcon = { Icon(Icons.Default.Event, contentDescription = null) },
+//                        trailingIcon = {
+//                            if (expirationDate != null) {
+//                                IconButton(onClick = { expirationDate = null }) {
+//                                    Icon(Icons.Default.Clear, contentDescription = "Clear date")
+//                                }
+//                            }
+//                        }
+//                    )
+                    OutlinedTextField(
+                        value = expirationDateText,
+                        onValueChange = {
+                            expirationDateText = it
+                            expirationDateError = null
+                            expirationDate = try {
+                                dateFormatter.parse(it)
+                            } catch (e: Exception) {
+                                expirationDateError = "Invalid date format (e.g. Jan 01, 2024)"
+                                null
+                            }
                         },
-                    readOnly = true,
-                    leadingIcon = { Icon(Icons.Default.Event, contentDescription = null) },
-                    trailingIcon = {
-                        if (expirationDate != null) {
-                            IconButton(onClick = { expirationDate = null }) {
-                                Icon(Icons.Default.Clear, contentDescription = "Clear date")
+                        label = { Text("Expiry Date") },
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = expirationDateError != null,
+                        leadingIcon = { Icon(Icons.Default.Event, contentDescription = null) },
+                        trailingIcon = {
+                            IconButton(onClick = {
+                                showDatePicker = true
+                                datePickerType = "expiration"
+                            }) {
+                                Icon(Icons.Default.DateRange, contentDescription = "Pick date")
+                            }
+                        },
+                        supportingText = {
+                            if (expirationDateError != null) {
+                                Text(expirationDateError!!, color = MaterialTheme.colorScheme.error)
                             }
                         }
-                    }
-                )
-
-                OutlinedTextField(
-                    value = warrantyDate?.let { dateFormatter.format(it) } ?: "",
-                    onValueChange = {},
-                    label = { Text("Warranty Date") },
-                    modifier =
-                        Modifier.weight(1f).clickable {
-                            datePickerType = "warranty"
-                            showDatePicker = true
+                    )
+                }
+                Box(modifier = Modifier.weight(1f)) {
+//                    OutlinedTextField(
+//                        value = warrantyDate?.let { dateFormatter.format(it) } ?: "",
+//                        onValueChange = {},
+//                        label = { Text("Warranty Date") },
+//                        readOnly = true,
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .focusProperties{canFocus = false }
+//                            .semantics { role = Role.Button }
+//                            .clickable {
+//                                datePickerType = "warranty"
+//                                showDatePicker = true
+//                            },
+//                        leadingIcon = { Icon(Icons.Default.Security, contentDescription = null) },
+//                        trailingIcon = {
+//                            if (warrantyDate != null) {
+//                                IconButton(onClick = { warrantyDate = null }) {
+//                                    Icon(Icons.Default.Clear, contentDescription = "Clear date")
+//                                }
+//                            }
+//                        }
+//                    )
+                    OutlinedTextField(
+                        value = warrantyDateText,
+                        onValueChange = {
+                            warrantyDateText = it
+                            warrantyDateError = null
+                            warrantyDate = try {
+                                dateFormatter.parse(it)
+                            } catch (e: Exception) {
+                                warrantyDateError = "Invalid date format (e.g. Jan 01, 2024)"
+                                null
+                            }
                         },
-                    readOnly = true,
-                    leadingIcon = { Icon(Icons.Default.Security, contentDescription = null) },
-                    trailingIcon = {
-                        if (warrantyDate != null) {
-                            IconButton(onClick = { warrantyDate = null }) {
-                                Icon(Icons.Default.Clear, contentDescription = "Clear date")
+                        label = { Text("Warranty Date") },
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = warrantyDateError != null,
+                        leadingIcon = { Icon(Icons.Default.Security, contentDescription = null) },
+                        trailingIcon = {
+                            IconButton(onClick = {
+                                showDatePicker = true
+                                datePickerType = "warranty"
+                            }) {
+                                Icon(Icons.Default.DateRange, contentDescription = "Pick date")
+                            }
+                        },
+                        supportingText = {
+                            if (warrantyDateError != null) {
+                                Text(warrantyDateError!!, color = MaterialTheme.colorScheme.error)
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
 
             // Barcode
@@ -414,44 +460,44 @@ fun AddEditItemScreen(
             )
         }
         if (showDatePicker) {
-            DatePickerDialog(
+            AppDatePickerDialog(
                 onDateSelected = { selectedDate ->
                     when (datePickerType) {
                         "expiration" -> expirationDate = selectedDate
                         "warranty" -> warrantyDate = selectedDate
                     }
                     showDatePicker = false
-                },
+             },
                 onDismiss = { showDatePicker = false }
             )
-        }
+       }
     }
 
     // Camera Dialog
-    if (showCamera && cameraPermissionState.status.isGranted) {
-        CameraDialog(
-            imageCapture = imageCapture,
-            onImageCaptured = { uri ->
-                imagePath = uri.toString()
-                showCamera = false
-            },
-            onDismiss = { showCamera = false }
-        )
-    }
+//    if (showCamera && cameraPermissionState.status.isGranted) {
+//        CameraDialog(
+//            imageCapture = imageCapture,
+//            onImageCaptured = { uri ->
+//                imagePath = uri.toString()
+//                showCamera = false
+//            },
+//            onDismiss = { showCamera = false }
+//        )
+//    }
 
     // Date Picker Dialog
-    if (showDatePicker) {
-        DatePickerDialog(
-            onDateSelected = { selectedDate ->
-                when (datePickerType) {
-                    "expiration" -> expirationDate = selectedDate
-                    "warranty" -> warrantyDate = selectedDate
-                }
-                showDatePicker = false
-            },
-            onDismiss = { showDatePicker = false }
-        )
-    }
+//    if (showDatePicker) {
+//        AppDatePickerDialog(
+//           onDateSelected = { selectedDate ->
+//               when (datePickerType) {
+//                    "expiration" -> expirationDate = selectedDate
+//                    "warranty" -> warrantyDate = selectedDate
+//                }
+//                showDatePicker = false
+//            },
+//            onDismiss = { showDatePicker = false }
+//        )
+//    }
 }
 
 @Composable
@@ -524,8 +570,13 @@ fun CameraDialog(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatePickerDialog(onDateSelected: (Date) -> Unit, onDismiss: () -> Unit) {
-    val datePickerState = rememberDatePickerState()
+fun AppDatePickerDialog(
+    onDateSelected: (Date) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = System.currentTimeMillis()
+    )
 
     DatePickerDialog(
         onDismissRequest = onDismiss,
@@ -536,8 +587,16 @@ fun DatePickerDialog(onDateSelected: (Date) -> Unit, onDismiss: () -> Unit) {
                         onDateSelected(Date(millis))
                     }
                 }
-            ) { Text("OK") }
+            ) {
+                Text("OK")
+            }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
-    ) { DatePicker(state = datePickerState) }
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    ) {
+        DatePicker(state = datePickerState)
+    }
 }
