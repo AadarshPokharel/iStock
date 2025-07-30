@@ -75,14 +75,75 @@ fun CategoryInventoryScreen(
 
 @Composable
 fun InventoryItemCard(item: InventoryItem) {
+    val isLowStock = item.quantity <= item.minStockLevel  // Check low stock condition
+    val dateFormat = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault())
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            // Item Name
             Text(text = item.name, style = MaterialTheme.typography.titleMedium)
+
+            // Description if there is one
+            if (item.description.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = item.description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Quantity: ${item.quantity}", style = MaterialTheme.typography.bodySmall)
+
+            // Quantity and Price Row
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text(
+                    text = "Qty: ${item.quantity}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (isLowStock) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                )
+                if (item.price > 0) {
+                    Text(
+                        text = "Price: $${String.format("%.2f", item.price)}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+
+            // Expiration Date
+            item.expirationDate?.let { date ->
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Expiry: ${dateFormat.format(date)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            // Warranty Date
+            item.warrantyDate?.let { date ->
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Warranty: ${dateFormat.format(date)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            // Low Stock Alert
+            if (isLowStock) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "⚠ Low Stock Alert",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
         }
     }
 }
+
+
