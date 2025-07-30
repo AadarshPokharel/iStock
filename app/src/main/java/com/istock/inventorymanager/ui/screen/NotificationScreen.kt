@@ -10,14 +10,22 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color // Make sure Color is imported
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.istock.inventorymanager.data.model.Notification
 import com.istock.inventorymanager.data.model.NotificationType
-import com.istock.inventorymanager.ui.theme.warning
+// Assuming CustomAppPrimary and CustomOnPrimaryText are accessible,
+// if not, you might need to import them from your ui.theme package
+// e.g., import com.istock.inventorymanager.ui.theme.CustomAppPrimary
+// import com.istock.inventorymanager.ui.theme.CustomOnPrimaryText
+import com.istock.inventorymanager.ui.theme.warning // Keep this if used elsewhere, not directly for TopAppBar here
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.text.font.FontWeight // Add this import
+import androidx.compose.ui.unit.sp // Add this import
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,20 +37,32 @@ fun NotificationScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Notifications") },
+                title = { Text("Notifications", style = MaterialTheme.typography.titleLarge.copy(fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold)) }, // Text color will be controlled by topAppBarColors
                 actions = {
                     if (notifications.isNotEmpty()) {
                         IconButton(onClick = onClearAll) {
-                            Icon(Icons.Default.ClearAll, contentDescription = "Clear all notifications")
+                            Icon(
+                                Icons.Default.ClearAll,
+                                contentDescription = "Clear all notifications"
+                            )
                         }
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    // Background color of the TopAppBar
+                    containerColor = MaterialTheme.colorScheme.primary, // Or your specific Color(0xFF9E3B2F)
+                    // Color of the title text
+                    titleContentColor = Color(0xFFFDF3DA),
+                )
             )
         }
     ) { paddingValues ->
         if (notifications.isEmpty()) {
             Box(
-                modifier = Modifier.fillMaxSize().padding(paddingValues),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -62,7 +82,9 @@ fun NotificationScreen(
             }
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(paddingValues),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
                 items(notifications.sortedByDescending { it.timestamp }) { notification ->
@@ -83,7 +105,7 @@ fun NotificationItem(
     onClick: () -> Unit
 ) {
     val dateFormatter = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
-    
+
     Card(
         onClick = onClick,
         modifier = Modifier
@@ -143,7 +165,7 @@ fun NotificationIcon(type: NotificationType) {
         NotificationType.ITEM_DELETED -> Icons.Default.Delete
         NotificationType.GENERAL -> Icons.Default.Notifications
     }
-    
+
     val color = when (type) {
         NotificationType.LOW_STOCK -> MaterialTheme.colorScheme.error
         NotificationType.EXPIRING_SOON -> MaterialTheme.colorScheme.error
@@ -152,7 +174,7 @@ fun NotificationIcon(type: NotificationType) {
         NotificationType.ITEM_DELETED -> MaterialTheme.colorScheme.error
         NotificationType.GENERAL -> MaterialTheme.colorScheme.primary
     }
-    
+
     Icon(
         imageVector = icon,
         contentDescription = type.name,

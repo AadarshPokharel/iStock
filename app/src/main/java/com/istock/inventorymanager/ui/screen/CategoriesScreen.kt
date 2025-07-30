@@ -1,5 +1,5 @@
 package com.istock.inventorymanager.ui.screen
-
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,6 +11,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -54,38 +56,55 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
-                modifier =
-                        Modifier.fillMaxSize()
-                                .background(MaterialTheme.colorScheme.background)
-                                .padding(16.dp)
+            modifier =
+                Modifier.fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(16.dp)
         ) {
             // Header with search bar
             Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors =
-                            CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
-                            ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                modifier = Modifier.fillMaxWidth(),
+                colors =
+                    CardDefaults.cardColors(
+                        //containerColor = MaterialTheme.colorScheme.surface
+                        containerColor = Color(0xFF9E3B2F)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                            text = "Room Categories",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                        text = "Room Categories",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFF9E3B2),
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
                     OutlinedTextField(
-                            value = searchQuery,
-                            onValueChange = { searchQuery = it },
-                            label = { Text("Search categories...") },
-                            modifier = Modifier.fillMaxWidth(),
-                            trailingIcon = {
-                                Icon(Icons.Default.Search, contentDescription = "Search")
-                            },
-                            shape = RoundedCornerShape(12.dp)
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        label = { Text("Search categories...", color = Color(0xFFF5E0B8)) }, // Optional: Change label color too
+                        modifier = Modifier.fillMaxWidth(),
+                        trailingIcon = {
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = "Search"
+                            )
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            // Text color when the field is focused
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color(0xFFF5E0B8),
+
+                            focusedTrailingIconColor = Color.White,
+                            unfocusedTrailingIconColor = Color(0xFFF5E0B8),
+                            // Cursor color
+                            cursorColor = Color.White,
+                            focusedLabelColor = Color(0xFFF5E0B8),
+                            unfocusedLabelColor = Color(0xFFD3C1A3),
+                            focusedBorderColor = Color(0xFFF5E0B8),
+                            unfocusedBorderColor = Color(0xFFBCAAA4)
+                        )
                     )
                 }
             }
@@ -94,24 +113,24 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
 
             if (isLoading) {
                 Box(
-                        modifier = Modifier.fillMaxWidth().weight(1f),
-                        contentAlignment = Alignment.Center
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    contentAlignment = Alignment.Center
                 ) { CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) }
             } else {
                 // Grid layout for categories
                 LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.weight(1f)
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.weight(1f)
                 ) {
                     items(filteredCategories) { category ->
                         CategoryCard(
-                                category = category,
-                                onEdit = { editingCategory = category },
-                                onDelete = { viewModel.deleteCategory(category) },
-                                onClick = { navController.navigate("categoryInventory/${category.id}") }
+                            category = category,
+                            onEdit = { editingCategory = category },
+                            onDelete = { viewModel.deleteCategory(category) },
+                            onClick = { navController.navigate("categoryInventory/${category.id}") }
                         )
                     }
                 }
@@ -121,14 +140,14 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
 
         // Floating Action Button
         FloatingActionButton(
-                onClick = { showAddDialog = true },
-                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
-                containerColor = MaterialTheme.colorScheme.primary
+            onClick = { showAddDialog = true },
+            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+            containerColor = MaterialTheme.colorScheme.primary
         ) {
             Icon(
-                    Icons.Default.Add,
-                    contentDescription = "Add Category",
-                    tint = MaterialTheme.colorScheme.onPrimary
+                Icons.Default.Add,
+                contentDescription = "Add Category",
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
     }
@@ -136,22 +155,22 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
     // Dialogs
     if (showAddDialog) {
         AddCategoryDialog(
-                onDismiss = { showAddDialog = false },
-                onConfirm = { name, description ->
-                    viewModel.addCategory(name, description)
-                    showAddDialog = false
-                }
+            onDismiss = { showAddDialog = false },
+            onConfirm = { name, description ->
+                viewModel.addCategory(name, description)
+                showAddDialog = false
+            }
         )
     }
 
     editingCategory?.let { category ->
         EditCategoryDialog(
-                category = category,
-                onDismiss = { editingCategory = null },
-                onConfirm = { updatedCategory ->
-                    viewModel.updateCategory(updatedCategory)
-                    editingCategory = null
-                }
+            category = category,
+            onDismiss = { editingCategory = null },
+            onConfirm = { updatedCategory ->
+                viewModel.updateCategory(updatedCategory)
+                editingCategory = null
+            }
         )
     }
 }
@@ -159,54 +178,54 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryCard(
-        category: Category,
-        onEdit: () -> Unit,
-        onDelete: () -> Unit,
-        onClick: () -> Unit
+    category: Category,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onClick: () -> Unit
 ) {
     val icon = getCategoryIcon(category.name)
 
     Card(
-            modifier = Modifier.fillMaxWidth().aspectRatio(1f).clickable { onClick() },
-            colors =
-                    CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
-                    ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+        modifier = Modifier.fillMaxWidth().aspectRatio(1f).clickable { onClick() },
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
-                    modifier = Modifier.fillMaxSize().padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                modifier = Modifier.fillMaxSize().padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
                 // Category Icon
                 Icon(
-                        imageVector = icon,
-                        contentDescription = category.name,
-                        modifier = Modifier.size(48.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                    imageVector = icon,
+                    contentDescription = category.name,
+                    modifier = Modifier.size(48.dp),
+                    tint = MaterialTheme.colorScheme.primary
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Category Name
                 Text(
-                        text = category.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    text = category.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
 
                 if (category.description.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                            text = category.description,
-                            style = MaterialTheme.typography.bodySmall,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
-                            maxLines = 2
+                        text = category.description,
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                        maxLines = 2
                     )
                 }
             }
@@ -215,18 +234,18 @@ fun CategoryCard(
             Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
                 IconButton(onClick = onEdit, modifier = Modifier.size(24.dp)) {
                     Icon(
-                            Icons.Default.Edit,
-                            contentDescription = "Edit",
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.primary
+                        Icons.Default.Edit,
+                        contentDescription = "Edit",
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
                 IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
                     Icon(
-                            Icons.Default.Delete,
-                            contentDescription = "Delete",
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.error
+                        Icons.Default.Delete,
+                        contentDescription = "Delete",
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.error
                     )
                 }
             }
@@ -240,37 +259,37 @@ fun AddCategoryDialog(onDismiss: () -> Unit, onConfirm: (String, String) -> Unit
     var description by remember { mutableStateOf("") }
 
     AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text("Add Category") },
-            text = {
-                Column {
-                    OutlinedTextField(
-                            value = name,
-                            onValueChange = { name = it },
-                            label = { Text("Category Name") },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                            value = description,
-                            onValueChange = { description = it },
-                            label = { Text("Description (Optional)") },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp)
-                    )
+        onDismissRequest = onDismiss,
+        title = { Text("Add Category") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Category Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Description (Optional)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (name.isNotBlank()) {
+                        onConfirm(name.trim(), description.trim())
+                    }
                 }
-            },
-            confirmButton = {
-                TextButton(
-                        onClick = {
-                            if (name.isNotBlank()) {
-                                onConfirm(name.trim(), description.trim())
-                            }
-                        }
-                ) { Text("Add") }
-            },
-            dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+            ) { Text("Add") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
 }
 
@@ -280,41 +299,41 @@ fun EditCategoryDialog(category: Category, onDismiss: () -> Unit, onConfirm: (Ca
     var description by remember { mutableStateOf(category.description) }
 
     AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text("Edit Category") },
-            text = {
-                Column {
-                    OutlinedTextField(
-                            value = name,
-                            onValueChange = { name = it },
-                            label = { Text("Category Name") },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                            value = description,
-                            onValueChange = { description = it },
-                            label = { Text("Description (Optional)") },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp)
-                    )
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Category") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Category Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Description (Optional)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (name.isNotBlank()) {
+                        onConfirm(
+                            category.copy(
+                                name = name.trim(),
+                                description = description.trim()
+                            )
+                        )
+                    }
                 }
-            },
-            confirmButton = {
-                TextButton(
-                        onClick = {
-                            if (name.isNotBlank()) {
-                                onConfirm(
-                                        category.copy(
-                                                name = name.trim(),
-                                                description = description.trim()
-                                        )
-                                )
-                            }
-                        }
-                ) { Text("Save") }
-            },
-            dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+            ) { Text("Save") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
 }
