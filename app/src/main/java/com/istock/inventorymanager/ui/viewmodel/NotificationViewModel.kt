@@ -12,6 +12,20 @@ class NotificationViewModel : ViewModel() {
     private val _notifications = MutableStateFlow<List<Notification>>(emptyList())
     val notifications: StateFlow<List<Notification>> = _notifications
 
+    init {
+        // Add a test notification for verification
+        addNotification(
+            Notification(
+                id = 1,
+                title = "Test Notification",
+                message = "This is a test notification. If you see this, notifications are working!",
+                type = com.istock.inventorymanager.data.model.NotificationType.GENERAL,
+                timestamp = Date(),
+                isRead = false
+            )
+        )
+    }
+
     fun addNotification(notification: Notification) {
         _notifications.value = listOf(notification) + _notifications.value
     }
