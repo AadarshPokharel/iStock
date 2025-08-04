@@ -152,6 +152,10 @@ fun InventoryNavigation(modifier: Modifier = Modifier) {
                         onClearAll = { notificationViewModel.clearAll() }
                     )
                 }
+                composable("settings")
+                {
+                   com.istock.inventorymanager.ui.screen.SettingsScreen(navController = navController)
+                }
             }
         }
     }

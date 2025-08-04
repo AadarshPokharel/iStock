@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -23,7 +24,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.istock.inventorymanager.data.model.Category
 import com.istock.inventorymanager.ui.viewmodel.CategoryViewModel
-
+import com.istock.inventorymanager.R
+import androidx.compose.foundation.Image
 // Helper function to get icon for category
 private fun getCategoryIcon(categoryName: String): ImageVector {
     return when (categoryName.lowercase()) {
@@ -53,85 +55,105 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
     val filteredCategories = categories.filter {
         it.name.contains(searchQuery, ignoreCase = true)
     }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier =
-                Modifier.fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(16.dp)
-        ) {
-            // Header with search bar
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors =
-                    CardDefaults.cardColors(
-                        //containerColor = MaterialTheme.colorScheme.surface
-                        containerColor = Color(0xFF9E3B2F)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "Room Categories",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFFF9E3B2),
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        label = { Text("Search categories...", color = Color(0xFFF5E0B8)) }, // Optional: Change label color too
-                        modifier = Modifier.fillMaxWidth(),
-                        trailingIcon = {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = "Search"
-                            )
-                        },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            // Text color when the field is focused
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color(0xFFF5E0B8),
-
-                            focusedTrailingIconColor = Color.White,
-                            unfocusedTrailingIconColor = Color(0xFFF5E0B8),
-                            // Cursor color
-                            cursorColor = Color.White,
-                            focusedLabelColor = Color(0xFFF5E0B8),
-                            unfocusedLabelColor = Color(0xFFD3C1A3),
-                            focusedBorderColor = Color(0xFFF5E0B8),
-                            unfocusedBorderColor = Color(0xFFBCAAA4)
-                        )
-                    )
+    Scaffold(
+    topBar = {
+        TopAppBar(
+            modifier = Modifier.height(40.dp),
+            title = {},
+            actions = {
+                IconButton(onClick = { navController.navigate("settings") }) {
+                    Icon(Icons.Default.Settings, contentDescription = "Settings")
                 }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxWidth().weight(1f),
-                    contentAlignment = Alignment.Center
-                ) { CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) }
-            } else {
-                // Grid layout for categories
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.weight(1f)
+            },
+            windowInsets = WindowInsets(0)
+        )
+    },
+    ) { padding ->
+        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+            Column(
+                modifier =
+                    Modifier.fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(16.dp)
+            ) {
+                // Header with search bar
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors =
+                        CardDefaults.cardColors(
+                            //containerColor = MaterialTheme.colorScheme.surface
+                            containerColor = Color(0xFF9E3B2F)
+                        ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    items(filteredCategories) { category ->
-                        CategoryCard(
-                            category = category,
-                            onEdit = { editingCategory = category },
-                            onDelete = { viewModel.deleteCategory(category) },
-                            onClick = { navController.navigate("categoryInventory/${category.id}") }
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Room Categories",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFF9E3B2),
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            label = {
+                                Text(
+                                    "Search categories...",
+                                    color = Color(0xFFF5E0B8)
+                                )
+                            }, // Optional: Change label color too
+                            modifier = Modifier.fillMaxWidth(),
+                            trailingIcon = {
+                                Icon(
+                                    Icons.Default.Search,
+                                    contentDescription = "Search"
+                                )
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                // Text color when the field is focused
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color(0xFFF5E0B8),
+
+                                focusedTrailingIconColor = Color.White,
+                                unfocusedTrailingIconColor = Color(0xFFF5E0B8),
+                                // Cursor color
+                                cursorColor = Color.White,
+                                focusedLabelColor = Color(0xFFF5E0B8),
+                                unfocusedLabelColor = Color(0xFFD3C1A3),
+                                focusedBorderColor = Color(0xFFF5E0B8),
+                                unfocusedBorderColor = Color(0xFFBCAAA4)
+                            )
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) { CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) }
+                } else {
+                    // Grid layout for categories
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        contentPadding = PaddingValues(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth().weight(1f)
+                    ) {
+                        items(filteredCategories) { category ->
+                            CategoryCard(
+                                category = category,
+                                onEdit = { editingCategory = category },
+                                onDelete = { viewModel.deleteCategory(category) },
+                                onClick = { navController.navigate("categoryInventory/${category.id}") }
+                            )
+                        }
                     }
                 }
             }
@@ -139,41 +161,46 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
 
 
         // Floating Action Button
-        FloatingActionButton(
-            onClick = { showAddDialog = true },
-            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
-            containerColor = MaterialTheme.colorScheme.primary
-        ) {
-            Icon(
-                Icons.Default.Add,
-                contentDescription = "Add Category",
-                tint = MaterialTheme.colorScheme.onPrimary
-            )
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomEnd
+        ){
+            FloatingActionButton(
+                onClick = { showAddDialog = true },
+                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Add Category",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
     }
 
-    // Dialogs
-    if (showAddDialog) {
-        AddCategoryDialog(
-            onDismiss = { showAddDialog = false },
-            onConfirm = { name, description ->
-                viewModel.addCategory(name, description)
-                showAddDialog = false
-            }
-        )
-    }
+        // Dialogs
+        if (showAddDialog) {
+            AddCategoryDialog(
+                onDismiss = { showAddDialog = false },
+                onConfirm = { name, description ->
+                    viewModel.addCategory(name, description)
+                    showAddDialog = false
+                }
+            )
+        }
 
-    editingCategory?.let { category ->
-        EditCategoryDialog(
-            category = category,
-            onDismiss = { editingCategory = null },
-            onConfirm = { updatedCategory ->
-                viewModel.updateCategory(updatedCategory)
-                editingCategory = null
-            }
-        )
+        editingCategory?.let { category ->
+            EditCategoryDialog(
+                category = category,
+                onDismiss = { editingCategory = null },
+                onConfirm = { updatedCategory ->
+                    viewModel.updateCategory(updatedCategory)
+                    editingCategory = null
+                }
+            )
+        }
     }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -294,7 +321,11 @@ fun AddCategoryDialog(onDismiss: () -> Unit, onConfirm: (String, String) -> Unit
 }
 
 @Composable
-fun EditCategoryDialog(category: Category, onDismiss: () -> Unit, onConfirm: (Category) -> Unit) {
+fun EditCategoryDialog(
+    category: Category,
+    onDismiss: () -> Unit,
+    onConfirm: (Category) -> Unit
+) {
     var name by remember { mutableStateOf(category.name) }
     var description by remember { mutableStateOf(category.description) }
 
