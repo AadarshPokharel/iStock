@@ -86,6 +86,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.lifecycle.runtime.compose.android)
     kapt(libs.androidx.room.compiler)
     
     // Hilt for dependency injection

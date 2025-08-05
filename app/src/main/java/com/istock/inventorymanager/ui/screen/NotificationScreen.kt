@@ -4,28 +4,47 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ClearAll
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color // Make sure Color is imported
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.istock.inventorymanager.data.model.Notification
 import com.istock.inventorymanager.data.model.NotificationType
-// Assuming CustomAppPrimary and CustomOnPrimaryText are accessible,
-// if not, you might need to import them from your ui.theme package
-// e.g., import com.istock.inventorymanager.ui.theme.CustomAppPrimary
-// import com.istock.inventorymanager.ui.theme.CustomOnPrimaryText
-import com.istock.inventorymanager.ui.theme.warning // Keep this if used elsewhere, not directly for TopAppBar here
+import com.istock.inventorymanager.ui.theme.warning
+import com.istock.inventorymanager.ui.viewmodel.NotificationViewModel
 import java.text.SimpleDateFormat
-import java.util.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.text.font.FontWeight // Add this import
-import androidx.compose.ui.unit.sp // Add this import
+import java.util.Date
+import java.util.Locale
 
+/* Route/Host: collect state from VM */
+@Composable
+fun NotificationsRoute(
+    vm: NotificationViewModel = hiltViewModel()
+) {
+    val notifications by vm.notifications.collectAsStateWithLifecycle()
+    NotificationScreen(
+        notifications = notifications,
+        onNotificationClick = vm::onClick,
+        onClearAll = vm::onClearAll
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,32 +56,32 @@ fun NotificationScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Notifications", style = MaterialTheme.typography.titleLarge.copy(fontSize = 30.sp,
-                    fontWeight = FontWeight.Bold)) }, // Text color will be controlled by topAppBarColors
+                title = {
+                    Text(
+                        "Notifications",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontSize = 30.sp, fontWeight = FontWeight.Bold
+                        )
+                    )
+                },
                 actions = {
                     if (notifications.isNotEmpty()) {
                         IconButton(onClick = onClearAll) {
-                            Icon(
-                                Icons.Default.ClearAll,
-                                contentDescription = "Clear all notifications"
-                            )
+                            Icon(Icons.Default.ClearAll, contentDescription = "Clear all")
                         }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    // Background color of the TopAppBar
-                    containerColor = MaterialTheme.colorScheme.primary, // Or your specific Color(0xFF9E3B2F)
-                    // Color of the title text
+                    containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = Color(0xFFFDF3DA),
+                    actionIconContentColor = Color(0xFFFDF3DA)
                 )
             )
         }
     ) { paddingValues ->
         if (notifications.isEmpty()) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+                modifier = Modifier.fillMaxSize().padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -72,7 +91,7 @@ fun NotificationScreen(
                         modifier = Modifier.size(48.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(Modifier.height(8.dp))
                     Text(
                         "No notifications",
                         style = MaterialTheme.typography.bodyLarge,
@@ -82,16 +101,14 @@ fun NotificationScreen(
             }
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+                modifier = Modifier.fillMaxSize().padding(paddingValues),
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
-                items(notifications.sortedByDescending { it.timestamp }) { notification ->
-                    NotificationItem(
-                        notification = notification,
-                        onClick = { onNotificationClick(notification) }
-                    )
+                items(
+                    items = notifications,
+                    key = { n -> "${n.type}-${n.id}" } // stable key per item+type
+                ) { n ->
+                    NotificationItem(notification = n, onClick = { onNotificationClick(n) })
                 }
             }
         }
@@ -108,20 +125,16 @@ fun NotificationItem(
 
     Card(
         onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             NotificationIcon(type = notification.type)
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f)) {
                 Text(
                     text = notification.title,
                     style = MaterialTheme.typography.titleMedium,
@@ -136,24 +149,29 @@ fun NotificationItem(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = dateFormatter.format(notification.timestamp),
+                    text = formatTimestamp(notification.timestamp, dateFormatter),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             if (!notification.isRead) {
                 Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = CircleShape
-                        )
+                    modifier = Modifier.size(8.dp).background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = CircleShape
+                    )
                 )
             }
         }
     }
 }
+
+private fun formatTimestamp(ts: Any, formatter: SimpleDateFormat): String =
+    when (ts) {
+        is Date -> formatter.format(ts)
+        is Long -> formatter.format(Date(ts))
+        else -> ""
+    }
 
 @Composable
 fun NotificationIcon(type: NotificationType) {
@@ -165,7 +183,6 @@ fun NotificationIcon(type: NotificationType) {
         NotificationType.ITEM_DELETED -> Icons.Default.Delete
         NotificationType.GENERAL -> Icons.Default.Notifications
     }
-
     val color = when (type) {
         NotificationType.LOW_STOCK -> MaterialTheme.colorScheme.error
         NotificationType.EXPIRING_SOON -> MaterialTheme.colorScheme.error
@@ -174,11 +191,5 @@ fun NotificationIcon(type: NotificationType) {
         NotificationType.ITEM_DELETED -> MaterialTheme.colorScheme.error
         NotificationType.GENERAL -> MaterialTheme.colorScheme.primary
     }
-
-    Icon(
-        imageVector = icon,
-        contentDescription = type.name,
-        tint = color,
-        modifier = Modifier.size(24.dp)
-    )
+    Icon(imageVector = icon, contentDescription = type.name, tint = color, modifier = Modifier.size(24.dp))
 }
