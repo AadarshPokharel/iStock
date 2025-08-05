@@ -14,10 +14,12 @@ import com.istock.inventorymanager.data.dao.ShoppingListDao
 import com.istock.inventorymanager.data.model.Category
 import com.istock.inventorymanager.data.model.InventoryItem
 import com.istock.inventorymanager.data.model.ShoppingListItem
+import com.istock.inventorymanager.data.dao.NotificationDao
+import com.istock.inventorymanager.data.model.NotificationEntity
 
 @Database(
-        entities = [Category::class, InventoryItem::class, ShoppingListItem::class],
-        version = 2,
+        entities = [Category::class, InventoryItem::class, ShoppingListItem::class, NotificationEntity::class],
+        version = 3,
         exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -26,6 +28,8 @@ abstract class InventoryDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
     abstract fun inventoryItemDao(): InventoryItemDao
     abstract fun shoppingListDao(): ShoppingListDao
+
+    abstract fun notificationDao(): NotificationDao
 
     companion object {
         @Volatile private var INSTANCE: InventoryDatabase? = null
@@ -57,6 +61,7 @@ abstract class InventoryDatabase : RoomDatabase() {
                                                 "inventory_database"
                                         )
                                         .addMigrations(MIGRATION_1_2)
+                                        .fallbackToDestructiveMigration() // Use with caution, data will be lost
                                         .build()
                         INSTANCE = instance
                         instance

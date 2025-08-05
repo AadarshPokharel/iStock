@@ -16,6 +16,10 @@ import java.util.Calendar
 import java.util.Date
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.istock.inventorymanager.data.model.NotificationEntity
+import com.istock.inventorymanager.data.model.NotificationType
+import com.istock.inventorymanager.data.repository.NotificationRepository
+import kotlinx.coroutines.flow.first
 
 class NotificationWorker(context: Context, workerParams: WorkerParameters) :
         CoroutineWorker(context, workerParams) {
@@ -33,13 +37,26 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters) :
                     val database = InventoryDatabase.getDatabase(applicationContext)
                     val inventoryDao = database.inventoryItemDao()
 
+                    val notificationDao = database.notificationDao()
+                    val notificationRepository = NotificationRepository(notificationDao)
+
                     // Check for low stock items
-                    val lowStockItems = inventoryDao.getLowStockItems()
-                    lowStockItems.collect { items ->
-                        if (items.isNotEmpty()) {
-                            showLowStockNotification(items.size)
-                        }
+                    val lowStockItems = inventoryDao.getLowStockItems().first()
+                    if (lowStockItems.isNotEmpty()) {
+                        showLowStockNotification(lowStockItems.size)
+                        notificationRepository.insert(
+                            NotificationEntity(
+                                id = System.currentTimeMillis(),
+                                title = "Low Stock Alert",
+                                message = "${lowStockItems.size} item${if (lowStockItems.size > 1) "s are" else " is"} running low on stock",
+                                type = NotificationType.LOW_STOCK,
+                                timestamp = Date(),
+                                isRead = false,
+                                itemId = null
+                            )
+                        )
                     }
+
 
                     // Check for expiring items (within 7 days)
                     val calendar = Calendar.getInstance()
@@ -49,16 +66,37 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters) :
                     val expiringItems = inventoryDao.getExpiringItems(weekFromNow)
                     if (expiringItems.isNotEmpty()) {
                         showExpiryNotification(expiringItems.size)
+                        notificationRepository.insert(
+                            NotificationEntity(
+                                id = System.currentTimeMillis(),
+                                title = "Items Expiring Soon",
+                                message = "${expiringItems.size} item${if (expiringItems.size > 1) "s expire" else " expires"} within 7 days",
+                                type = NotificationType.EXPIRING_SOON,
+                                timestamp = Date(),
+                                isRead = false,
+                                itemId = null
+                            )
+                        )
                     }
 
                     // Check for warranty expiring items (within 30 days)
                     calendar.time = Date()
                     calendar.add(Calendar.DAY_OF_MONTH, 30)
                     val monthFromNow = calendar.time
-
                     val warrantyExpiringItems = inventoryDao.getWarrantyExpiringItems(monthFromNow)
                     if (warrantyExpiringItems.isNotEmpty()) {
                         showWarrantyNotification(warrantyExpiringItems.size)
+                        notificationRepository.insert(
+                            NotificationEntity(
+                                id = System.currentTimeMillis(),
+                                title = "Warranties Expiring Soon",
+                                message = "${warrantyExpiringItems.size} item${if (warrantyExpiringItems.size > 1) " warranties expire" else " warranty expires"} within 30 days",
+                                type = NotificationType.WARRANTY_EXPIRING,
+                                timestamp = Date(),
+                                isRead = false,
+                                itemId = null
+                            )
+                        )
                     }
 
                     Result.success()

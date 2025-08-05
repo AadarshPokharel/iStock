@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -66,9 +67,14 @@ fun NotificationScreen(
                 },
                 actions = {
                     if (notifications.isNotEmpty()) {
-                        IconButton(onClick = onClearAll) {
-                            Icon(Icons.Default.ClearAll, contentDescription = "Clear all")
-                        }
+                        Text(
+                            text = "Clear All",
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .clickable (onClick = onClearAll),
+                            color = Color(0xFFFDF3DA),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
