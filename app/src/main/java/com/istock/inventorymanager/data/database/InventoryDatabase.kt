@@ -61,7 +61,7 @@ abstract class InventoryDatabase : RoomDatabase() {
                                                 "inventory_database"
                                         )
                                         .addMigrations(MIGRATION_1_2)
-                                        .fallbackToDestructiveMigration() // Use with caution, data will be lost
+                                        .fallbackToDestructiveMigration()
                                         .build()
                         INSTANCE = instance
                         instance

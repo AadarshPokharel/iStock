@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// Defining the custom colors here
+// custom colors
 val CustomAppPrimary = Color(0xFF9E3B2F) // This is the icons color.
 val CustomOnPrimaryText = Color(0xFFFFFFFF) // This is the text color.
 val CustomBackground = Color(0xF0FDF4DA) // This is the background color.
@@ -73,7 +73,7 @@ fun IStockInventoryManagerTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb() // Status bar will now use new primary color
+            window.statusBarColor = colorScheme.primary.toArgb() // Status bar will now have new primary color
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }

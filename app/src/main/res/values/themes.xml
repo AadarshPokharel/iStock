@@ -16,12 +16,7 @@
     <style name="Theme.IStock.Splash" parent="Theme.SplashScreen">
         <!-- Background color of the splash -->
         <item name="windowSplashScreenBackground">@color/inventory_primary</item>
-
-        <!-- Logo icon (replace with your actual drawable name if different) -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/logo</item>
-
-        <!-- Optional: set duration for exit animation (optional polish) -->
-        <!-- <item name="postSplashScreenAnimationDuration">300</item> -->
 
         <!-- App theme to apply after splash is done -->
         <item name="postSplashScreenTheme">@style/Theme.IStockInventoryManager</item>

@@ -41,7 +41,7 @@ fun EditInventoryItemDialog(
     var description by remember { mutableStateOf(item.description) }
     var quantity by remember { mutableStateOf(item.quantity.toString()) }
     var minStock by remember { mutableStateOf(item.minStockLevel.toString()) }
-    var price by remember { mutableStateOf(String.format(Locale.US, "%.2f", item.price)) } // Assuming price is Double
+    var price by remember { mutableStateOf(String.format(Locale.US, "%.2f", item.price)) }
 
     // --- Date States ---
     val dateFormat = remember { SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()) }
@@ -50,7 +50,7 @@ fun EditInventoryItemDialog(
     var showExpirationDatePicker by remember { mutableStateOf(false) }
     val expirationDatePickerState = rememberDatePickerState(
         initialSelectedDateMillis = item.expirationDate?.time,
-        initialDisplayMode = DisplayMode.Picker // Or DisplayMode.Input
+        initialDisplayMode = DisplayMode.Picker
     )
 
     var warrantyDate by remember { mutableStateOf(item.warrantyDate) }
@@ -69,7 +69,7 @@ fun EditInventoryItemDialog(
             LazyColumn(
                 modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp)
             )
-                { // Use LazyColumn if the content might overflow
+                {
                 item {
                     OutlinedTextField(
                         value = name,
@@ -208,7 +208,7 @@ fun EditInventoryItemDialog(
                     )
                     onConfirm(updatedItem) // Pass the fully updated item
                 }
-            ) { Text("Save") } // Button text is "Save"
+            ) { Text("Save") } // Button text
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )

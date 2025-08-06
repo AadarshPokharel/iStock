@@ -11,7 +11,6 @@ class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED -> {
-                // Schedule notifications after device reboot
                 scheduleNotificationChecks(context)
             }
         }

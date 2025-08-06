@@ -3,8 +3,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -37,6 +39,8 @@ sealed class Screen(
     object ShoppingList : Screen("shopping_list", "Shopping List", Icons.Default.ShoppingCart)
     object AddEditItem : Screen("add_edit_item", "Add/Edit Item", Icons.Default.Inventory2)
     object Notifications : Screen("notifications", "Notifications", Icons.Default.Notifications)
+    object Settings : Screen("settings_route", "Settings", Icons.Filled.Settings)
+    object About : Screen(route = "about_screen_route", title = "About App", icon = Icons.Filled.Info)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -155,6 +159,9 @@ fun InventoryNavigation(modifier: Modifier = Modifier) {
                 composable("settings")
                 {
                    com.istock.inventorymanager.ui.screen.SettingsScreen(navController = navController)
+                }
+                composable(Screen.About.route) {
+                    com.istock.inventorymanager.ui.screen.AboutScreen(navController = navController)
                 }
             }
         }

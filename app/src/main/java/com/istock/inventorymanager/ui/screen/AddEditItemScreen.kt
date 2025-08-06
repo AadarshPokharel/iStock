@@ -117,7 +117,6 @@ fun AddEditItemScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
         ) {
-            // Spacer(modifier = Modifier.height(16.dp))
 
             // Image Section
             Card(
@@ -389,15 +388,6 @@ fun AddEditItemScreen(
                 }
             }
 
-            // Barcode
-//            OutlinedTextField(
-//                value = barcode,
-//                onValueChange = { barcode = it },
-//                label = { Text("Barcode/SKU") },
-//                modifier = Modifier.fillMaxWidth(),
-//                leadingIcon = { Icon(Icons.Default.QrCode, contentDescription = null) }
-//            )
-
             // Notes
             OutlinedTextField(
                 value = notes,
@@ -444,11 +434,8 @@ fun AddEditItemScreen(
             }
 
 
-            // Add bottom padding for better scrolling experience
             Spacer(modifier = Modifier.height(80.dp)) // Extra space for the bottom button
         }
-        // Ensure the bottom bar is always visible
-        // Dialogs should be outside the scrollable content
         if (showCamera && cameraPermissionState.status.isGranted) {
             CameraDialog(
                 imageCapture = imageCapture,
@@ -472,32 +459,6 @@ fun AddEditItemScreen(
             )
        }
     }
-
-    // Camera Dialog
-//    if (showCamera && cameraPermissionState.status.isGranted) {
-//        CameraDialog(
-//            imageCapture = imageCapture,
-//            onImageCaptured = { uri ->
-//                imagePath = uri.toString()
-//                showCamera = false
-//            },
-//            onDismiss = { showCamera = false }
-//        )
-//    }
-
-    // Date Picker Dialog
-//    if (showDatePicker) {
-//        AppDatePickerDialog(
-//           onDateSelected = { selectedDate ->
-//               when (datePickerType) {
-//                    "expiration" -> expirationDate = selectedDate
-//                    "warranty" -> warrantyDate = selectedDate
-//                }
-//                showDatePicker = false
-//            },
-//            onDismiss = { showDatePicker = false }
-//        )
-//    }
 }
 
 @Composable

@@ -86,7 +86,7 @@ fun InventoryItemCard(item: InventoryItem) {
             // Item Name
             Text(text = item.name, style = MaterialTheme.typography.titleMedium)
 
-            // Description if there is one
+
             if (item.description.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(

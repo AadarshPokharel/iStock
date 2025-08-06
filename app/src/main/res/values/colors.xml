@@ -6,8 +6,7 @@
     <color name="purple_40">#FF6650A4</color>
     <color name="purple_grey_40">#FF625B71</color>
     <color name="pink_40">#FF7D5260</color>
-    
-    <!-- Custom colors for inventory management -->
+
     <color name="inventory_primary">#f9e3b2</color> //this is for splash screen bg
     <color name="inventory_secondary">#FF388E3C</color>
     <color name="warning_orange">#FFFF9800</color>

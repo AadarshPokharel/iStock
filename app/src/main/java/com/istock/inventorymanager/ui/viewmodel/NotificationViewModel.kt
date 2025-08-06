@@ -36,7 +36,7 @@ class NotificationViewModel @Inject constructor(
     // Keep track of dismissed notifications (per item + type) in memory.
     private val dismissed = MutableStateFlow<Set<Pair<Long, NotificationType>>>(emptySet())
 
-    // 1) Low stock comes straight from DAO (Flow).
+    // 1) Low stock comes straight from DAO.
     private val lowStockFlow = itemDao.getLowStockItems().map { items ->
         items.map { it.toNotification(NotificationType.LOW_STOCK) }
     }
@@ -55,7 +55,7 @@ class NotificationViewModel @Inject constructor(
             .map { it.toNotification(NotificationType.WARRANTY_EXPIRING) }
     }
 
-    // Combine all three streams, drop dupes, hide dismissed, sort.
+    // Combine all three streams into one.
     val notifications: StateFlow<List<Notification>> =
         combine(lowStockFlow, expiringSoonFlow, warrantySoonFlow, dismissed) {
                 low, exp, war, dismissedSet ->
@@ -87,7 +87,6 @@ class NotificationViewModel @Inject constructor(
         }
     }
 
-    // --- Helpers ---
 
     private fun InventoryItem.toNotification(type: NotificationType): Notification {
         val title = when (type) {
@@ -110,10 +109,10 @@ class NotificationViewModel @Inject constructor(
         }
 
         return Notification(
-            id = id,                 // stable per item
+            id = id,
             title = title,
             message = message,
-            timestamp = Date(),      // or use updatedAt if you prefer
+            timestamp = Date(),
             type = type,
             isRead = false
         )

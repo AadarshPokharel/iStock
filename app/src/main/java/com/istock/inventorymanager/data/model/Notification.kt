@@ -9,7 +9,7 @@ data class Notification(
     val type: NotificationType,
     val timestamp: Date = Date(),
     val isRead: Boolean = false,
-    val itemId: Long? = null // Reference to the related inventory item if applicable
+    val itemId: Long? = null
 )
 
 enum class NotificationType {

@@ -45,7 +45,7 @@ constructor(
 
         val categoryIds = mutableMapOf<String, Long>()
 
-        // Insert categories and store their IDs
+
         categories.forEach { category ->
             val id = categoryRepository.insertCategory(category)
             categoryIds[category.name] = id

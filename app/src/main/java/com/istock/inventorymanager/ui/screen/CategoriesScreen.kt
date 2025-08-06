@@ -16,7 +16,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -24,8 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.istock.inventorymanager.data.model.Category
 import com.istock.inventorymanager.ui.viewmodel.CategoryViewModel
-import com.istock.inventorymanager.R
-import androidx.compose.foundation.Image
+
 // Helper function to get icon for category
 private fun getCategoryIcon(categoryName: String): ImageVector {
     return when (categoryName.lowercase()) {
@@ -59,12 +57,15 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
     topBar = {
         TopAppBar(
             modifier = Modifier.height(40.dp),
-            title = {},
+            title = { },
             actions = {
                 IconButton(onClick = { navController.navigate("settings") }) {
                     Icon(Icons.Default.Settings, contentDescription = "Settings")
                 }
             },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Color(0xFFF9E3B2),
+            ),
             windowInsets = WindowInsets(0)
         )
     },
@@ -81,7 +82,6 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
                     modifier = Modifier.fillMaxWidth(),
                     colors =
                         CardDefaults.cardColors(
-                            //containerColor = MaterialTheme.colorScheme.surface
                             containerColor = Color(0xFF9E3B2F)
                         ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -103,7 +103,7 @@ fun CategoriesScreen(viewModel: CategoryViewModel = hiltViewModel(), navControll
                                     "Search categories...",
                                     color = Color(0xFFF5E0B8)
                                 )
-                            }, // Optional: Change label color too
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
                                 Icon(
